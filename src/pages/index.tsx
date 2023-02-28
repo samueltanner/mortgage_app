@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { states, rates_by_county } from '@/lib/data'
 import { County, State } from '@/lib/types'
 import { parsePrice } from '@/lib/helpers'
+import { type } from 'os'
 
 export default function Home() {
   const [primaryInterestRate, setPrimaryInterestRate] = useState<number>(7.547)
@@ -16,7 +17,7 @@ export default function Home() {
     undefined,
   )
   const [selectedCounty, setSelectedCounty] = useState<County>()
-  const [homePrice, setHomePrice] = useState<number | undefined>(undefined)
+  const [homePrice, setHomePrice] = useState<string>('')
 
   useEffect(() => {
     if (!selectedState) return
@@ -25,6 +26,12 @@ export default function Home() {
     })
     setCounties(filteredCounties)
   }, [selectedState])
+
+  const handlePriceChange = (value: string) => {
+    let newValue = value.replace(/,/g, '')
+    let parsedValue = newValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    setHomePrice(parsedValue)
+  }
   return (
     <>
       <Head>
@@ -88,19 +95,31 @@ export default function Home() {
                 </span>
               )}
               <span className="flex gap-2">
-                <label>Home Price</label>
+                <label htmlFor="price">Home Price</label>
                 $
                 <input
-                  type="number"
+                  id="price"
                   placeholder={
                     selectedCounty &&
                     parsePrice(selectedCounty?.median) + ' (median)'
                   }
                   onChange={(e) => {
-                    setHomePrice(Number(e.target.value))
+                    handlePriceChange(e.target.value)
                   }}
                   value={homePrice}
                 />
+              </span>
+              <span className="flex gap-2">
+                <label htmlFor="propertyType">Property Type</label>
+                <select id="propertyType">
+                  <option value="singleFamily" selected>
+                    Single Family
+                  </option>
+                  <option disabled>---Multi-Family---</option>
+                  <option value="duplex">Duplex</option>
+                  <option value="triplex">Triplex</option>
+                  <option value="fourplex">Fourplex</option>
+                </select>
               </span>
               <span className="flex gap-2">
                 <label>Down Payment</label>
@@ -108,14 +127,6 @@ export default function Home() {
               </span>
               <span className="flex gap-2">
                 <label>Property Taxes (Annual)</label>
-                <input type="number" />
-              </span>
-              <span className="flex gap-2">
-                <label>Property Type</label>
-                <input type="number" />
-              </span>
-              <span className="flex gap-2">
-                <label>Number of Units</label>
                 <input type="number" />
               </span>
               <span className="flex gap-2">

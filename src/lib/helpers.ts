@@ -10,5 +10,7 @@ export const parsePrice = (
     currency: 'USD',
     maximumFractionDigits: cents ? 2 : 0,
   })
-  return formattedPrice.format(price)
+  const result = formattedPrice.format(price);
+
+  return result;
 }
