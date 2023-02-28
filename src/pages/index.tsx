@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import { states, rates_by_county } from '@/lib/data'
 import { County, State } from '@/lib/types'
 import { parsePrice } from '@/lib/helpers'
-import { type } from 'os'
 
 export default function Home() {
   const [primaryInterestRate, setPrimaryInterestRate] = useState<number>(7.547)
@@ -18,6 +17,11 @@ export default function Home() {
   )
   const [selectedCounty, setSelectedCounty] = useState<County>()
   const [homePrice, setHomePrice] = useState<string>('')
+  const [propertyType, setPropertyType] = useState<number>(1)
+  const [conventionalLoanLimit, setConventionalLoanLimit] = useState<
+    number | undefined
+  >()
+  const [FHALoanLimit, setFHALoanLimit] = useState<number | undefined>()
 
   useEffect(() => {
     if (!selectedState) return
@@ -27,11 +31,39 @@ export default function Home() {
     setCounties(filteredCounties)
   }, [selectedState])
 
+  useEffect(() => {
+    if (!selectedCounty) return
+    if (loanType === 'conventional' && propertyType === 1)
+      return setConventionalLoanLimit(selectedCounty.gse_1)
+
+    if (loanType === 'conventional' && propertyType === 2)
+      return setConventionalLoanLimit(selectedCounty.gse_2)
+
+    if (loanType === 'conventional' && propertyType === 3)
+      return setConventionalLoanLimit(selectedCounty.gse_3)
+
+    if (loanType === 'conventional' && propertyType === 4)
+      return setConventionalLoanLimit(selectedCounty.gse_4)
+
+    if (loanType === 'fha' && propertyType === 1)
+      return setFHALoanLimit(selectedCounty.fha_1)
+
+    if (loanType === 'fha' && propertyType === 2)
+      return setFHALoanLimit(selectedCounty.fha_2)
+
+    if (loanType === 'fha' && propertyType === 3)
+      return setFHALoanLimit(selectedCounty.fha_3)
+
+    if (loanType === 'fha' && propertyType === 4)
+      return setFHALoanLimit(selectedCounty.fha_4)
+  }, [selectedCounty, loanType, propertyType, selectedState])
+
   const handlePriceChange = (value: string) => {
     let newValue = value.replace(/,/g, '')
     let parsedValue = newValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
     setHomePrice(parsedValue)
   }
+
   return (
     <>
       <Head>
@@ -111,14 +143,17 @@ export default function Home() {
               </span>
               <span className="flex gap-2">
                 <label htmlFor="propertyType">Property Type</label>
-                <select id="propertyType">
-                  <option value="singleFamily" selected>
+                <select
+                  id="propertyType"
+                  onChange={(e) => setPropertyType(parseInt(e.target.value))}
+                >
+                  <option value="1" selected>
                     Single Family
                   </option>
                   <option disabled>---Multi-Family---</option>
-                  <option value="duplex">Duplex</option>
-                  <option value="triplex">Triplex</option>
-                  <option value="fourplex">Fourplex</option>
+                  <option value="2">Duplex</option>
+                  <option value="3">Triplex</option>
+                  <option value="4">Fourplex</option>
                 </select>
               </span>
               <span className="flex gap-2">
@@ -164,7 +199,14 @@ export default function Home() {
                   </span>
                   <span className="flex gap-2">
                     <label>Conventional Loan Limit</label>
-                    <input type="number" />%
+                    $
+                    <input
+                      value={
+                        conventionalLoanLimit &&
+                        parsePrice(conventionalLoanLimit)
+                      }
+                      disabled
+                    />
                   </span>
                 </>
               )}
@@ -183,7 +225,10 @@ export default function Home() {
                   </span>
                   <span className="flex gap-2">
                     <label>FHA Loan Limit</label>
-                    <input type="number" />%
+                    <input
+                      value={FHALoanLimit && parsePrice(FHALoanLimit)}
+                      disabled
+                    />
                   </span>
                 </>
               )}
