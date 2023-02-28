@@ -14,3 +14,13 @@ export const parsePrice = (
 
   return result;
 }
+
+ export const handlePriceChange = (value: string) => {
+    let newValue = value.replace(/,/g, '')
+    let parsedValue = newValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    return parsedValue
+  }
+
+  export const getCleanNumber = (price: string) => {
+    return Number(price?.replace(/,/g, ''))
+  }

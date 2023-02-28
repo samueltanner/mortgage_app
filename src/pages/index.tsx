@@ -2,7 +2,8 @@ import Head from 'next/head'
 import { useState, useEffect } from 'react'
 import { states, rates_by_county } from '@/lib/data'
 import { County, State } from '@/lib/types'
-import { parsePrice } from '@/lib/helpers'
+import { parsePrice, getCleanNumber, handlePriceChange } from '@/lib/helpers'
+import { LoanInfoCard } from '@/components/LoanInfoCard'
 
 export default function Home() {
   const [primaryInterestRate, setPrimaryInterestRate] = useState<number>(7.547)
@@ -13,7 +14,7 @@ export default function Home() {
   const [mortgageInsurance, setMortgageInsurance] = useState<boolean>(true)
   const [counties, setCounties] = useState<County[] | undefined>(undefined)
   const [selectedState, setSelectedState] = useState<string | undefined>(
-    undefined,
+    'initial',
   )
   const [selectedCounty, setSelectedCounty] = useState<County>()
   const [homePrice, setHomePrice] = useState<string>('')
@@ -62,49 +63,6 @@ export default function Home() {
     if (loanType === 'fha' && propertyType === 4)
       return setFHALoanLimit(selectedCounty.fha_4)
   }, [selectedCounty, loanType, propertyType, selectedState])
-
-  const handlePriceChange = (value: string) => {
-    let newValue = value.replace(/,/g, '')
-    let parsedValue = newValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-    return parsedValue
-  }
-
-  const getCleanNumber = (price: string) => {
-    return Number(price.replace(/,/g, ''))
-  }
-
-  const downPaymentTooLow = () => {
-    const cleanDownPayment = getCleanNumber(downPayment)
-    const cleanHomePrice = getCleanNumber(homePrice)
-    if (loanType === 'conventional') {
-      return cleanDownPayment / cleanHomePrice < 0.03
-    }
-    if (loanType === 'fha') {
-      return cleanDownPayment / cleanHomePrice < 0.035
-    }
-  }
-
-  const salesPriceNotMet = () => {
-    const cleanDownPayment = getCleanNumber(downPayment)
-    const cleanHomePrice = getCleanNumber(homePrice)
-    const cleanPrimaryLoanAmount = getCleanNumber(primaryLoanAmount)
-    const cleanFHALoanAmount = getCleanNumber(FHALoanAmount)
-    if (loanType === 'conventional') {
-      return cleanDownPayment + cleanPrimaryLoanAmount !== cleanHomePrice
-    }
-    if (loanType === 'fha') {
-      return cleanDownPayment + cleanFHALoanAmount !== cleanHomePrice
-    }
-  }
-
-  const resetLoanVars = () => {
-    setPrimaryLoanAmount('')
-    setFHALoanAmount('0')
-    setDownPayment('')
-    setPrimaryInterestRate(7.547)
-    setLoanType('conventional')
-    setConventionalLoanLimit(undefined)
-  }
 
   const resetPropertyVars = () => {
     setSelectedState('initial')
@@ -250,160 +208,27 @@ export default function Home() {
                 />
               </span>
             </div>
-            <div className="flex flex-col gap-2">
-              <span className="flex gap-2">
-                <p className="text-2xl font-bold">Loan Info</p>
-                <button
-                  className="border-2 px-2 w-fit h-fit mt-1"
-                  onClick={() => {
-                    resetLoanVars()
-                  }}
-                >
-                  Reset
-                </button>
-              </span>
-              <span className="flex gap-2">
-                <label htmlFor="loanType">Loan Type</label>
-                <select
-                  onChange={(e) => setLoanType(e.target.value)}
-                  id="loanType"
-                  value={loanType}
-                >
-                  <option value="conventional">Conventional 30-Year</option>
-                  <option value="fha">FHA</option>
-                  <option value="piggyback">Piggyback</option>
-                  <option value="jumbo">Jumbo</option>
-                </select>
-              </span>
-              {['conventional', 'piggyback'].includes(loanType) && (
-                <>
-                  {conventionalLoanLimit && (
-                    <span className="flex gap-2">
-                      <label htmlFor="conventionalLoanLimit">
-                        Conventional Loan Limit
-                      </label>
-                      $
-                      <input
-                        id="conventionalLoanLimit"
-                        value={parsePrice(conventionalLoanLimit)}
-                        disabled
-                      />
-                    </span>
-                  )}
-                  <span className="flex gap-2">
-                    <label htmlFor="primaryLoanAmount">
-                      Primary Loan Amount
-                    </label>
-                    $
-                    <input
-                      id="primaryLoanAmount"
-                      value={primaryLoanAmount}
-                      onChange={(e) => {
-                        setPrimaryLoanAmount(handlePriceChange(e.target.value))
-                      }}
-                    />
-                  </span>
-                  <span className="flex gap-2">
-                    <label htmlFor="primaryInterestRate">
-                      Primary Interest Rate
-                    </label>
-                    <input
-                      id="primaryInterestRate"
-                      value={primaryInterestRate}
-                      onChange={(e) =>
-                        setPrimaryInterestRate(Number(e.target.value))
-                      }
-                    />
-                    %
-                  </span>
-                </>
-              )}
-              {loanType === 'fha' && (
-                <>
-                  <span className="flex gap-2">
-                    <label>FHA Interest Rate</label>
-                    <input
-                      value={FHAInterestRate}
-                      onChange={(e) =>
-                        setFHAInterestRate(Number(e.target.value))
-                      }
-                    />
-                    %
-                  </span>
-                  <span className="flex gap-2">
-                    <label>FHA Loan Limit</label>
-                    <input
-                      value={FHALoanLimit && parsePrice(FHALoanLimit)}
-                      disabled
-                    />
-                  </span>
-                </>
-              )}
-              {loanType === 'piggyback' && (
-                <span className="flex gap-2">
-                  <label>Piggyback Interest Rate</label>
-                  <input
-                    placeholder={piggybackInterestRate.toString()}
-                    onChange={(e) =>
-                      setPiggybackInterestRate(Number(e.target.value))
-                    }
-                  />
-                  %
-                </span>
-              )}
-              <span className="flex gap-2">
-                <label htmlFor="downPayment">Down Payment</label>
-                $
-                <input
-                  id="downPayment"
-                  onChange={(e) =>
-                    setDownPayment(handlePriceChange(e.target.value))
-                  }
-                  value={downPayment}
-                />
-                {homePrice && primaryLoanAmount && (
-                  <button
-                    className="border-2 px-2"
-                    onClick={() => {
-                      const cleanHomePrice = getCleanNumber(homePrice)
-                      const cleanLoanValue = getCleanNumber(primaryLoanAmount)
-                      const optimizedDP = cleanHomePrice - cleanLoanValue
-                      setDownPayment(handlePriceChange(optimizedDP.toString()))
-                    }}
-                  >
-                    Calculate
-                  </button>
-                )}
-                {homePrice && downPayment && (
-                  <p>
-                    {(
-                      (getCleanNumber(downPayment) /
-                        getCleanNumber(homePrice)) *
-                      100
-                    ).toFixed(2)}
-                    % of Home Price
-                  </p>
-                )}
-              </span>
-              <div className="flex flex-col">
-                {(!downPayment || downPaymentTooLow()) && (
-                  <p>
-                    * Minimum Down Payment is $
-                    {loanType === 'fha'
-                      ? '3.5%'
-                      : loanType === 'conventional' || loanType === 'jumbo'
-                      ? '3%'
-                      : '10%'}
-                  </p>
-                )}
-                {salesPriceNotMet() && (
-                  <p>* Loan Amount + Down Payment ≠ Home Price</p>
-                )}
-              </div>
-              {/* <hr className="w-1/2" /> */}
-              {/* <p> Primary Loan Amount + Down Payment = Home Price</p>
-              {primaryLoanAmount} + {downPayment} = {homePrice} */}
-            </div>
+
+            <LoanInfoCard
+              loanType={loanType}
+              conventionalLoanLimit={conventionalLoanLimit}
+              FHAInterestRate={FHAInterestRate}
+              setLoanType={setLoanType}
+              setPrimaryLoanAmount={setPrimaryLoanAmount}
+              FHALoanLimit={FHALoanLimit}
+              setFHAInterestRate={setFHAInterestRate}
+              setPiggybackInterestRate={setPiggybackInterestRate}
+              setFHALoanAmount={setFHALoanAmount}
+              setDownPayment={setDownPayment}
+              setPrimaryInterestRate={setPrimaryInterestRate}
+              setConventionalLoanLimit={setConventionalLoanLimit}
+              piggybackInterestRate={piggybackInterestRate}
+              FHALoanAmount={FHALoanAmount}
+              primaryInterestRate={primaryInterestRate}
+              homePrice={homePrice}
+              downPayment={downPayment}
+              primaryLoanAmount={primaryLoanAmount}
+            />
 
             <div className="flex flex-col gap-2">
               <p className="text-2xl font-bold">Income Info</p>
