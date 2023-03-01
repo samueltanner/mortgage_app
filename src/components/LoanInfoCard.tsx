@@ -1,7 +1,7 @@
 import { parsePrice, handlePriceChange, getCleanNumber } from '@/lib/helpers'
 interface Props {
   loanType: string
-  conventionalLoanLimit: number
+  conventionalLoanLimit: number | undefined
   primaryLoanAmount: string
   downPayment: string
   homePrice: string
@@ -31,7 +31,6 @@ export const LoanInfoCard = ({
   setFHALoanAmount,
   setDownPayment,
   setPrimaryInterestRate,
-  setConventionalLoanLimit,
   setLoanType,
   FHAInterestRate,
   FHALoanLimit,
@@ -54,7 +53,7 @@ export const LoanInfoCard = ({
   const cleanFHALoanAmount = getCleanNumber(FHALoanAmount)
   const minDownPayment =
     cleanHomePrice * (loanType === 'conventional' ? 0.03 : 0.035)
-  const houseLoanLimitDiff = cleanHomePrice - conventionalLoanLimit
+  const houseLoanLimitDiff = cleanHomePrice - (conventionalLoanLimit || 0)
 
   const downPaymentTooLow = () => {
     if (loanType === 'conventional') {
@@ -79,7 +78,7 @@ export const LoanInfoCard = ({
     if (loanType === 'conventional') {
       if (houseLoanLimitDiff > minDownPayment) {
         setPrimaryLoanAmount(
-          handlePriceChange(conventionalLoanLimit.toString()),
+          handlePriceChange((conventionalLoanLimit || 0).toString()),
         )
         setDownPayment(handlePriceChange(houseLoanLimitDiff.toString()))
       }
@@ -255,7 +254,7 @@ export const LoanInfoCard = ({
           </p>
         )}
         {salesPriceNotMet() && <p>* Loan Amount + Down Payment ≠ Home Price</p>}
-        {cleanPrimaryLoanAmount > conventionalLoanLimit && (
+        {cleanPrimaryLoanAmount > (conventionalLoanLimit || 0) && (
           <p>* Loan Amount cannot exceed Loan Limit</p>
         )}
       </div>

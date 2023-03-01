@@ -19,7 +19,9 @@ export default function Home() {
   const [selectedCounty, setSelectedCounty] = useState<County>()
   const [homePrice, setHomePrice] = useState<string>('')
   const [propertyType, setPropertyType] = useState<number>(1)
-  const [conventionalLoanLimit, setConventionalLoanLimit] = useState<number>()
+  const [conventionalLoanLimit, setConventionalLoanLimit] = useState<
+    number | undefined
+  >()
   const [FHALoanLimit, setFHALoanLimit] = useState<number | undefined>()
   const [downPayment, setDownPayment] = useState<string>('')
   const [HOADues, setHOADues] = useState<string>('')
