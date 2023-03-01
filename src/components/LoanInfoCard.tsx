@@ -107,8 +107,7 @@ export const LoanInfoCard = ({
 
   const adjustLoanValueBasedOnDownPayment = () => {
     if (downPaymentTooLow()) return maximizeLoan()
-    const newLoanAmount =
-      cleanHomePrice - cleanDownPayment - cleanMinDownPayment
+    const newLoanAmount = cleanHomePrice - cleanDownPayment
 
     setPrimaryLoanAmount(handlePriceChange(newLoanAmount.toString()))
   }
@@ -263,6 +262,7 @@ export const LoanInfoCard = ({
             Optimize For Down Payment
           </button>
         )}
+        {loanOptimized() ? 'Optimized' : 'Not Optimized'}
         {homePrice && downPayment && (
           <p>
             {(
