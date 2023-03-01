@@ -11,7 +11,7 @@ export default function Home() {
   const [piggybackInterestRate, setPiggybackInterestRate] =
     useState<number>(9.1)
   const [loanType, setLoanType] = useState<string>('conventional')
-  const [mortgageInsurance, setMortgageInsurance] = useState<boolean>(true)
+  // const [mortgageInsurance, setMortgageInsurance] = useState<boolean>(true)
   const [counties, setCounties] = useState<County[] | undefined>(undefined)
   const [selectedState, setSelectedState] = useState<string | undefined>(
     'initial',
@@ -19,9 +19,7 @@ export default function Home() {
   const [selectedCounty, setSelectedCounty] = useState<County>()
   const [homePrice, setHomePrice] = useState<string>('')
   const [propertyType, setPropertyType] = useState<number>(1)
-  const [conventionalLoanLimit, setConventionalLoanLimit] = useState<
-    number | undefined
-  >()
+  const [conventionalLoanLimit, setConventionalLoanLimit] = useState<number>()
   const [FHALoanLimit, setFHALoanLimit] = useState<number | undefined>()
   const [downPayment, setDownPayment] = useState<string>('')
   const [HOADues, setHOADues] = useState<string>('')
@@ -167,7 +165,7 @@ export default function Home() {
                 <select
                   id="propertyType"
                   onChange={(e) => setPropertyType(parseInt(e.target.value))}
-                  defaultValue="1"
+                  value={propertyType}
                 >
                   <option value="1">Single Family</option>
                   <option disabled>---Multi-Family---</option>
