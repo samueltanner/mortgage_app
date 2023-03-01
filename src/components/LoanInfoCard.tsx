@@ -1,4 +1,5 @@
 import { parsePrice, handlePriceChange, getCleanNumber } from '@/lib/helpers'
+import { useEffect } from 'react'
 interface Props {
   loanType: string
   conventionalLoanLimit: number | undefined
@@ -18,6 +19,7 @@ interface Props {
   piggybackInterestRate: number
   FHALoanAmount: string
   primaryInterestRate: number
+  propertyType: number
 }
 
 export const LoanInfoCard = ({
@@ -38,8 +40,15 @@ export const LoanInfoCard = ({
   setPiggybackInterestRate,
   piggybackInterestRate,
   FHALoanAmount,
+  setConventionalLoanLimit,
+  propertyType,
 }: Props) => {
+  useEffect(() => {
+    resetLoanVars()
+  }, [homePrice, propertyType])
+
   const resetLoanVars = () => {
+    console.log('reset')
     setPrimaryLoanAmount('')
     setFHALoanAmount('0')
     setDownPayment('')
@@ -51,7 +60,7 @@ export const LoanInfoCard = ({
   const cleanHomePrice = getCleanNumber(homePrice)
   const cleanPrimaryLoanAmount = getCleanNumber(primaryLoanAmount)
   const cleanFHALoanAmount = getCleanNumber(FHALoanAmount)
-  const minDownPayment =
+  const cleanMinDownPayment =
     cleanHomePrice * (loanType === 'conventional' ? 0.03 : 0.035)
   const houseLoanLimitDiff = cleanHomePrice - (conventionalLoanLimit || 0)
 
@@ -75,32 +84,33 @@ export const LoanInfoCard = ({
 
   const maximizeLoan = () => {
     if (!homePrice) return
-    if (loanType === 'conventional') {
-      if (houseLoanLimitDiff > minDownPayment) {
-        setPrimaryLoanAmount(
-          handlePriceChange((conventionalLoanLimit || 0).toString()),
-        )
-        setDownPayment(handlePriceChange(houseLoanLimitDiff.toString()))
-      }
 
-      if (houseLoanLimitDiff < minDownPayment) {
-        setDownPayment(handlePriceChange(minDownPayment.toString()))
-        setPrimaryLoanAmount(
-          handlePriceChange((cleanHomePrice - cleanDownPayment).toString()),
-        )
-      }
+    const loanLimit =
+      loanType === 'conventional'
+        ? conventionalLoanLimit
+        : loanType === 'fha'
+        ? FHALoanLimit
+        : 0
+
+    if (houseLoanLimitDiff > cleanMinDownPayment) {
+      setPrimaryLoanAmount(handlePriceChange((loanLimit || 0).toString()))
+      setDownPayment(handlePriceChange(houseLoanLimitDiff.toString()))
     }
-    if (loanType === 'fha') {
-      null
+
+    if (houseLoanLimitDiff < cleanMinDownPayment) {
+      setDownPayment(handlePriceChange(cleanMinDownPayment.toString()))
+      setPrimaryLoanAmount(
+        handlePriceChange((cleanHomePrice - cleanDownPayment).toString()),
+      )
     }
   }
 
   const adjustLoanValueBasedOnDownPayment = () => {
     if (downPaymentTooLow()) return maximizeLoan()
-    if (loanType === 'conventional') {
-      const newLoanAmount = cleanHomePrice - cleanDownPayment
-      setPrimaryLoanAmount(handlePriceChange(newLoanAmount.toString()))
-    }
+    const newLoanAmount =
+      cleanHomePrice - cleanDownPayment - cleanMinDownPayment
+
+    setPrimaryLoanAmount(handlePriceChange(newLoanAmount.toString()))
   }
 
   const loanOptimized = () => {
@@ -166,7 +176,7 @@ export const LoanInfoCard = ({
                 setPrimaryLoanAmount(handlePriceChange(e.target.value))
               }}
             />
-            {!loanMaximized() && (
+            {!loanMaximized() && homePrice && conventionalLoanLimit && (
               <button
                 className="border-2 px-2"
                 onClick={() => {
@@ -191,16 +201,37 @@ export const LoanInfoCard = ({
       {loanType === 'fha' && (
         <>
           <span className="flex gap-2">
+            <label>FHA Loan Limit</label>
+            <input value={FHALoanLimit && parsePrice(FHALoanLimit)} disabled />
+          </span>
+          <span className="flex gap-2">
+            <label htmlFor="primaryLoanAmount">Primary Loan Amount</label>
+            $
+            <input
+              id="primaryLoanAmount"
+              value={primaryLoanAmount}
+              onChange={(e) => {
+                setPrimaryLoanAmount(handlePriceChange(e.target.value))
+              }}
+            />
+            {!loanMaximized() && homePrice && conventionalLoanLimit && (
+              <button
+                className="border-2 px-2"
+                onClick={() => {
+                  maximizeLoan()
+                }}
+              >
+                Maximize Loan
+              </button>
+            )}
+          </span>
+          <span className="flex gap-2">
             <label>FHA Interest Rate</label>
             <input
               value={FHAInterestRate}
               onChange={(e) => setFHAInterestRate(Number(e.target.value))}
             />
             %
-          </span>
-          <span className="flex gap-2">
-            <label>FHA Loan Limit</label>
-            <input value={FHALoanLimit && parsePrice(FHALoanLimit)} disabled />
           </span>
         </>
       )}

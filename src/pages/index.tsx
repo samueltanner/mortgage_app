@@ -228,6 +228,7 @@ export default function Home() {
               homePrice={homePrice}
               downPayment={downPayment}
               primaryLoanAmount={primaryLoanAmount}
+              propertyType={propertyType}
             />
 
             <div className="flex flex-col gap-2">
