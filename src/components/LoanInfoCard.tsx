@@ -47,6 +47,10 @@ export const LoanInfoCard = ({
     resetLoanVars()
   }, [homePrice, propertyType])
 
+  useEffect(() => {
+    maximizeLoan()
+  }, [loanType])
+
   const resetLoanVars = () => {
     console.log('reset')
     setPrimaryLoanAmount('')
@@ -62,7 +66,13 @@ export const LoanInfoCard = ({
   const cleanFHALoanAmount = getCleanNumber(FHALoanAmount)
   const cleanMinDownPayment =
     cleanHomePrice * (loanType === 'conventional' ? 0.03 : 0.035)
-  const houseLoanLimitDiff = cleanHomePrice - (conventionalLoanLimit || 0)
+  const loanLimit =
+    loanType === 'conventional'
+      ? conventionalLoanLimit
+      : loanType === 'fha'
+      ? FHALoanLimit
+      : 0
+  const houseLoanLimitDiff = cleanHomePrice - (loanLimit || 0)
 
   const downPaymentTooLow = () => {
     if (loanType === 'conventional') {
@@ -85,16 +95,18 @@ export const LoanInfoCard = ({
   const maximizeLoan = () => {
     if (!homePrice) return
 
-    const loanLimit =
-      loanType === 'conventional'
-        ? conventionalLoanLimit
-        : loanType === 'fha'
-        ? FHALoanLimit
-        : 0
+    if (cleanHomePrice < loanLimit) {
+      setPrimaryLoanAmount(
+        handlePriceChange((cleanHomePrice - cleanMinDownPayment).toString()),
+      )
+      setDownPayment(handlePriceChange(cleanMinDownPayment.toString()))
+      return
+    }
 
     if (houseLoanLimitDiff > cleanMinDownPayment) {
       setPrimaryLoanAmount(handlePriceChange((loanLimit || 0).toString()))
       setDownPayment(handlePriceChange(houseLoanLimitDiff.toString()))
+      return
     }
 
     if (houseLoanLimitDiff < cleanMinDownPayment) {
@@ -102,6 +114,7 @@ export const LoanInfoCard = ({
       setPrimaryLoanAmount(
         handlePriceChange((cleanHomePrice - cleanDownPayment).toString()),
       )
+      return
     }
   }
 
@@ -120,7 +133,11 @@ export const LoanInfoCard = ({
 
   const loanMaximized = () => {
     if (loanType === 'conventional') {
-      return cleanPrimaryLoanAmount === conventionalLoanLimit
+      return (
+        cleanPrimaryLoanAmount === conventionalLoanLimit
+
+        //|| cleanHomePrice - cleanMinDownPayment === cleanPrimaryLoanAmount
+      )
     }
   }
 
@@ -262,7 +279,6 @@ export const LoanInfoCard = ({
             Optimize For Down Payment
           </button>
         )}
-        {loanOptimized() ? 'Optimized' : 'Not Optimized'}
         {homePrice && downPayment && (
           <p>
             {(
@@ -289,6 +305,7 @@ export const LoanInfoCard = ({
           <p>* Loan Amount cannot exceed Loan Limit</p>
         )}
       </div>
+
       {/* <hr className="w-1/2" /> */}
       {/* <p> Primary Loan Amount + Down Payment = Home Price</p>
   {primaryLoanAmount} + {downPayment} = {homePrice} */}
