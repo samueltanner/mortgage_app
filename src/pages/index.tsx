@@ -20,10 +20,8 @@ export default function Home() {
   const [selectedCounty, setSelectedCounty] = useState<County>()
   const [homePrice, setHomePrice] = useState<string>('')
   const [propertyType, setPropertyType] = useState<number>(1)
-  const [conventionalLoanLimit, setConventionalLoanLimit] = useState<
-    number | undefined
-  >()
-  const [FHALoanLimit, setFHALoanLimit] = useState<number | undefined>()
+  const [conventionalLoanLimit, setConventionalLoanLimit] = useState<number>(0)
+  const [FHALoanLimit, setFHALoanLimit] = useState<number>(0)
   const [downPayment, setDownPayment] = useState<string>('')
   const [HOADues, setHOADues] = useState<string>('')
   const [propertyTax, setPropertyTax] = useState<string>('')
@@ -39,29 +37,37 @@ export default function Home() {
   }, [selectedState])
 
   useEffect(() => {
-    if (!selectedCounty) return setConventionalLoanLimit(undefined)
-
+    if (!selectedCounty)
+      return setConventionalLoanLimit(Number.POSITIVE_INFINITY)
 
     if (
-      (loanType === 'conventional' || loanType === 'piggyback' || loanType === 'jumbo') &&
+      (loanType === 'conventional' ||
+        loanType === 'piggyback' ||
+        loanType === 'jumbo') &&
       propertyType === 1
     )
       return setConventionalLoanLimit(selectedCounty.gse_1)
 
     if (
-      (loanType === 'conventional' || loanType === 'piggyback' || loanType === 'jumbo') &&
+      (loanType === 'conventional' ||
+        loanType === 'piggyback' ||
+        loanType === 'jumbo') &&
       propertyType === 2
     )
       return setConventionalLoanLimit(selectedCounty.gse_2)
 
     if (
-      (loanType === 'conventional' || loanType === 'piggyback' || loanType === 'jumbo') &&
+      (loanType === 'conventional' ||
+        loanType === 'piggyback' ||
+        loanType === 'jumbo') &&
       propertyType === 3
     )
       return setConventionalLoanLimit(selectedCounty.gse_3)
 
     if (
-      (loanType === 'conventional' || loanType === 'piggyback' || loanType === 'jumbo') &&
+      (loanType === 'conventional' ||
+        loanType === 'piggyback' ||
+        loanType === 'jumbo') &&
       propertyType === 4
     )
       return setConventionalLoanLimit(selectedCounty.gse_4)

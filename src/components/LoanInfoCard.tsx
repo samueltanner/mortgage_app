@@ -2,7 +2,7 @@ import { parsePrice, handlePriceChange, getCleanNumber } from '@/lib/helpers'
 import { useEffect } from 'react'
 interface Props {
   loanType: string
-  conventionalLoanLimit: number | undefined
+  conventionalLoanLimit: number
   primaryLoanAmount: string
   downPayment: string
   homePrice: string
@@ -12,8 +12,8 @@ interface Props {
   setDownPayment: (value: string) => void
   setPrimaryInterestRate: (value: number) => void
   setLoanType: (value: string) => void
-  setConventionalLoanLimit: (value: number | undefined) => void
-  FHALoanLimit: number | undefined
+  setConventionalLoanLimit: (value: number) => void
+  FHALoanLimit: number
   setFHAInterestRate: (value: number) => void
   setPiggybackInterestRate: (value: number) => void
   piggybackInterestRate: number
@@ -51,23 +51,17 @@ export const LoanInfoCard = ({
     resetLoanVars()
   }, [homePrice, propertyType, loanType])
 
-  // useEffect(() => {
-  //   maximizeLoan()
-  // }, [loanType])
-
   const resetLoanVars = () => {
     setPrimaryLoanAmount('')
     setFHALoanAmount('0')
     setPiggyBackLoanAmount('')
     setDownPayment('')
     setPrimaryInterestRate(7.547)
-    // setLoanType('conventional')
   }
 
   const cleanDownPayment = getCleanNumber(downPayment)
   const cleanHomePrice = getCleanNumber(homePrice)
   const cleanPrimaryLoanAmount = getCleanNumber(primaryLoanAmount)
-  const cleanFHALoanAmount = getCleanNumber(FHALoanAmount)
   const cleanMinDownPayment =
     cleanHomePrice *
     (loanType === 'conventional' ? 0.03 : loanType === 'fha' ? 0.035 : 0.1)
@@ -77,8 +71,8 @@ export const LoanInfoCard = ({
       : loanType === 'fha'
       ? FHALoanLimit
       : 0
-  const houseLoanLimitDiff = cleanHomePrice - (loanLimit || 0)
   const cleanPiggyBackLoanAmount = getCleanNumber(piggyBackLoanAmount)
+  const adjustedPrimaryLoan = cleanHomePrice - cleanDownPayment
 
   const piggyBackImpossible = () => {
     return cleanHomePrice < cleanHomePrice * 0.1 + conventionalLoanLimit
@@ -97,10 +91,6 @@ export const LoanInfoCard = ({
       return
     }
 
-    if (cleanHomePrice < loanLimit) {
-      return console.log('affordable house you got there')
-    }
-
     if (loanType === 'jumbo') {
       setDownPayment(handlePriceChange(cleanMinDownPayment.toString()))
       setPrimaryLoanAmount(
@@ -114,24 +104,80 @@ export const LoanInfoCard = ({
       setDownPayment(handlePriceChange(cleanMinDownPayment.toString()))
       setPrimaryLoanAmount(handlePriceChange((loanLimit || 0).toString()))
       setPiggyBackLoanAmount(handlePriceChange(piggyback.toString()))
+      return
     }
 
-    console.log('hi')
-    setDownPayment(
-      handlePriceChange(
-        (cleanHomePrice > loanLimit
-          ? cleanHomePrice - loanLimit
-          : cleanMinDownPayment
-        )
-          .toFixed()
-          .toString(),
-      ),
+    const loanDiff =
+      cleanHomePrice - loanLimit > cleanMinDownPayment
+        ? cleanHomePrice - loanLimit
+        : cleanMinDownPayment
+
+    setDownPayment(handlePriceChange(loanDiff.toString()))
+    setPrimaryLoanAmount(
+      handlePriceChange((cleanHomePrice - loanDiff).toString()),
     )
+  }
+
+  const optimizeForDownCustomDownPayment = () => {
+    if (cleanDownPayment < cleanMinDownPayment) {
+      return maximizeBorrowing()
+    }
+
+    if (cleanDownPayment > cleanHomePrice) {
+      setDownPayment(handlePriceChange(cleanHomePrice.toString()))
+      setPrimaryLoanAmount('0')
+      setPiggyBackLoanAmount('0')
+      return
+    }
+
+    if (loanType === 'piggyback') {
+      setPrimaryLoanAmount(handlePriceChange(loanLimit.toString()))
+      setPiggyBackLoanAmount(
+        handlePriceChange(
+          (
+            cleanHomePrice -
+            cleanPrimaryLoanAmount -
+            cleanDownPayment
+          ).toString(),
+        ),
+      )
+      return
+    }
+
+    if (
+      cleanHomePrice -
+        cleanPrimaryLoanAmount -
+        cleanPiggyBackLoanAmount -
+        cleanDownPayment >
+      0
+    ) {
+      return maximizeBorrowing()
+    }
+
+    if (
+      cleanHomePrice -
+        cleanPrimaryLoanAmount -
+        cleanPiggyBackLoanAmount -
+        cleanDownPayment <
+      0
+    ) {
+      setPrimaryLoanAmount(
+        handlePriceChange(
+          (adjustedPrimaryLoan > loanLimit
+            ? loanLimit
+            : adjustedPrimaryLoan
+          ).toString(),
+        ),
+      )
+      setPiggyBackLoanAmount('0')
+      return
+    }
+
     setPrimaryLoanAmount(
       handlePriceChange(
-        (cleanHomePrice > loanLimit
+        (adjustedPrimaryLoan > loanLimit
           ? loanLimit
-          : loanLimit - cleanHomePrice
+          : adjustedPrimaryLoan
         ).toString(),
       ),
     )
@@ -150,101 +196,6 @@ export const LoanInfoCard = ({
     return (
       cleanDownPayment + cleanPrimaryLoanAmount + cleanPiggyBackLoanAmount !==
       cleanHomePrice
-    )
-  }
-
-  const maximizeLoan = () => {
-    if (!homePrice) return
-
-    if (loanType === 'piggyback') {
-      setPrimaryLoanAmount(handlePriceChange((loanLimit || 0).toString()))
-      setDownPayment(handlePriceChange((cleanHomePrice * 0.1).toString()))
-      return
-    }
-
-    if (cleanHomePrice < loanLimit) {
-      console.log('1')
-      setPrimaryLoanAmount(
-        handlePriceChange((cleanHomePrice - cleanMinDownPayment).toString()),
-      )
-      setDownPayment(
-        handlePriceChange(cleanMinDownPayment.toFixed().toString()),
-      )
-      return
-    }
-
-    if (houseLoanLimitDiff > cleanMinDownPayment) {
-      console.log('2', houseLoanLimitDiff, cleanMinDownPayment)
-      setPrimaryLoanAmount(handlePriceChange((loanLimit || 0).toString()))
-      setDownPayment(handlePriceChange(houseLoanLimitDiff.toString()))
-      return
-    }
-
-    if (houseLoanLimitDiff < cleanMinDownPayment) {
-      console.log('3')
-      setDownPayment(handlePriceChange(cleanMinDownPayment.toString()))
-      setPrimaryLoanAmount(
-        handlePriceChange((cleanHomePrice - cleanDownPayment).toString()),
-      )
-      return
-    }
-  }
-
-  const adjustLoanValueBasedOnDownPayment = () => {
-    if (loanType === 'piggyback') {
-      console.log('here2')
-      setDownPayment(handlePriceChange((cleanHomePrice * 0.1).toString()))
-      setPiggyBackLoanAmount(
-        handlePriceChange(
-          (cleanHomePrice - cleanDownPayment - loanLimit).toString(),
-        ),
-      )
-      return
-    }
-
-    if (downPaymentTooLow()) return maximizeLoan()
-    const newLoanAmount = cleanHomePrice - cleanDownPayment
-
-    setPrimaryLoanAmount(handlePriceChange(newLoanAmount.toString()))
-  }
-
-  const loanOptimized = () => {
-    return (
-      cleanHomePrice -
-        cleanPrimaryLoanAmount -
-        cleanDownPayment -
-        cleanPiggyBackLoanAmount ===
-      0
-    )
-  }
-
-  const loanMaximized = () => {
-    return (
-      cleanPrimaryLoanAmount === loanLimit ||
-      cleanHomePrice - cleanMinDownPayment === cleanPrimaryLoanAmount
-    )
-  }
-
-  const optimizeDownPayment = () => {
-    console.log('here0')
-    const optimizeDownPayment = cleanHomePrice - cleanPrimaryLoanAmount
-
-    if (
-      optimizeDownPayment < cleanMinDownPayment ||
-      cleanHomePrice > cleanPrimaryLoanAmount ||
-      cleanPrimaryLoanAmount > loanLimit
-    ) {
-      console.log('here')
-      maximizeLoan()
-      return
-    }
-
-    setDownPayment(handlePriceChange(optimizeDownPayment.toString()))
-  }
-
-  const downPaymentOptimized = () => {
-    return (
-      cleanDownPayment >= Math.floor(cleanMinDownPayment) && loanOptimized()
     )
   }
 
@@ -268,7 +219,12 @@ export const LoanInfoCard = ({
         >
           Maximize Borrowing
         </button>
-        <button className="border-2 px-2 mt-1" onClick={() => {}}>
+        <button
+          className="border-2 px-2 mt-1"
+          onClick={() => {
+            optimizeForDownCustomDownPayment()
+          }}
+        >
           Adjust to Custom Down Payment
         </button>
       </span>
@@ -392,16 +348,6 @@ export const LoanInfoCard = ({
           onChange={(e) => setDownPayment(handlePriceChange(e.target.value))}
           value={downPayment}
         />
-        {homePrice && primaryLoanAmount && !loanOptimized() && (
-          <button
-            className="border-2 px-2"
-            onClick={() => {
-              adjustLoanValueBasedOnDownPayment()
-            }}
-          >
-            Optimize For Down Payment
-          </button>
-        )}
         {homePrice && downPayment && (
           <p>
             {(
@@ -427,10 +373,6 @@ export const LoanInfoCard = ({
         {cleanPrimaryLoanAmount > (conventionalLoanLimit || 0) &&
           loanType !== 'jumbo' && <p>* Loan Amount cannot exceed Loan Limit</p>}
       </div>
-
-      {/* <hr className="w-1/2" /> */}
-      {/* <p> Primary Loan Amount + Down Payment = Home Price</p>
-  {primaryLoanAmount} + {downPayment} = {homePrice} */}
     </div>
   )
 }
