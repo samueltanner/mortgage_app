@@ -11,6 +11,7 @@ export default function Home() {
   const [piggybackInterestRate, setPiggybackInterestRate] =
     useState<number>(9.1)
   const [loanType, setLoanType] = useState<string>('conventional')
+  const [piggyBackLoanAmount, setPiggyBackLoanAmount] = useState<string>('')
   // const [mortgageInsurance, setMortgageInsurance] = useState<boolean>(true)
   const [counties, setCounties] = useState<County[] | undefined>(undefined)
   const [selectedState, setSelectedState] = useState<string | undefined>(
@@ -39,16 +40,30 @@ export default function Home() {
 
   useEffect(() => {
     if (!selectedCounty) return setConventionalLoanLimit(undefined)
-    if (loanType === 'conventional' && propertyType === 1)
+
+
+    if (
+      (loanType === 'conventional' || loanType === 'piggyback' || loanType === 'jumbo') &&
+      propertyType === 1
+    )
       return setConventionalLoanLimit(selectedCounty.gse_1)
 
-    if (loanType === 'conventional' && propertyType === 2)
+    if (
+      (loanType === 'conventional' || loanType === 'piggyback' || loanType === 'jumbo') &&
+      propertyType === 2
+    )
       return setConventionalLoanLimit(selectedCounty.gse_2)
 
-    if (loanType === 'conventional' && propertyType === 3)
+    if (
+      (loanType === 'conventional' || loanType === 'piggyback' || loanType === 'jumbo') &&
+      propertyType === 3
+    )
       return setConventionalLoanLimit(selectedCounty.gse_3)
 
-    if (loanType === 'conventional' && propertyType === 4)
+    if (
+      (loanType === 'conventional' || loanType === 'piggyback' || loanType === 'jumbo') &&
+      propertyType === 4
+    )
       return setConventionalLoanLimit(selectedCounty.gse_4)
 
     if (loanType === 'fha' && propertyType === 1)
@@ -229,6 +244,8 @@ export default function Home() {
               downPayment={downPayment}
               primaryLoanAmount={primaryLoanAmount}
               propertyType={propertyType}
+              piggyBackLoanAmount={piggyBackLoanAmount}
+              setPiggyBackLoanAmount={setPiggyBackLoanAmount}
             />
 
             <div className="flex flex-col gap-2">
