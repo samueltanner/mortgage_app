@@ -1,4 +1,9 @@
-import { parsePrice, handlePriceChange, getCleanNumber } from '@/lib/helpers'
+import {
+  parsePrice,
+  handlePriceChange,
+  getCleanNumber,
+  handleNumberInputChange,
+} from '@/lib/helpers'
 import { useEffect } from 'react'
 interface Props {
   loanType: string
@@ -6,19 +11,19 @@ interface Props {
   primaryLoanAmount: string
   downPayment: string
   homePrice: string
-  FHAInterestRate: number
+  FHAInterestRate: number | undefined
   setPrimaryLoanAmount: (value: string) => void
   setFHALoanAmount: (value: string) => void
   setDownPayment: (value: string) => void
-  setPrimaryInterestRate: (value: number) => void
+  setPrimaryInterestRate: (value: number | undefined) => void
   setLoanType: (value: string) => void
   setConventionalLoanLimit: (value: number) => void
   FHALoanLimit: number
-  setFHAInterestRate: (value: number) => void
-  setPiggybackInterestRate: (value: number) => void
-  piggybackInterestRate: number
+  setFHAInterestRate: (value: number | undefined) => void
+  setPiggybackInterestRate: (value: number | undefined) => void
+  piggybackInterestRate: number | undefined
   FHALoanAmount: string
-  primaryInterestRate: number
+  primaryInterestRate: number | undefined
   propertyType: number
   piggyBackLoanAmount: string
   setPiggyBackLoanAmount: (value: string) => void
@@ -275,8 +280,12 @@ export const LoanInfoCard = ({
             <label htmlFor="primaryInterestRate">Primary Interest Rate</label>
             <input
               id="primaryInterestRate"
-              value={primaryInterestRate}
-              onChange={(e) => setPrimaryInterestRate(Number(e.target.value))}
+              type="number"
+              step="0.01"
+              value={primaryInterestRate || ''}
+              onChange={(e) => {
+                setPrimaryInterestRate(handleNumberInputChange(e))
+              }}
             />
             %
           </span>
@@ -300,10 +309,15 @@ export const LoanInfoCard = ({
             />
           </span>
           <span className="flex gap-2">
-            <label>FHA Interest Rate</label>
+            <label htmlFor="fhaInterestRate">FHA Interest Rate</label>
             <input
-              value={FHAInterestRate}
-              onChange={(e) => setFHAInterestRate(Number(e.target.value))}
+              id="fhaInterestRate"
+              type="number"
+              step="0.01"
+              value={FHAInterestRate || ''}
+              onChange={(e) => {
+                setFHAInterestRate(handleNumberInputChange(e))
+              }}
             />
             %
           </span>
@@ -316,7 +330,6 @@ export const LoanInfoCard = ({
             $
             <input
               value={piggyBackLoanAmount}
-              // placeholder={piggybackInterestRate.toString()}
               onChange={(e) =>
                 setPiggyBackLoanAmount(handlePriceChange(e.target.value))
               }
@@ -331,10 +344,17 @@ export const LoanInfoCard = ({
             </p>
           </span>
           <span className="flex gap-2">
-            <label>Piggyback Interest Rate</label>
+            <label htmlFor="piggybackInterestRate">
+              Piggyback Interest Rate
+            </label>
             <input
-              placeholder={piggybackInterestRate.toString()}
-              onChange={(e) => setPiggybackInterestRate(Number(e.target.value))}
+              id="piggybackInterestRate"
+              type="number"
+              step="0.01"
+              value={piggybackInterestRate || ''}
+              onChange={(e) => {
+                setPiggybackInterestRate(handleNumberInputChange(e))
+              }}
             />
             %
           </span>

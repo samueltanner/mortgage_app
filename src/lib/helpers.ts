@@ -24,3 +24,8 @@ export const parsePrice = (
   export const getCleanNumber = (price: string) => {
     return Number(price?.replace(/,/g, ''))
   }
+
+  export const handleNumberInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.valueAsNumber;
+    return newValue;
+  };

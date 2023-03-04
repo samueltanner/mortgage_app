@@ -4,15 +4,21 @@ import { states, rates_by_county } from '@/lib/data'
 import { County, State } from '@/lib/types'
 import { parsePrice, getCleanNumber, handlePriceChange } from '@/lib/helpers'
 import { LoanInfoCard } from '@/components/LoanInfoCard'
+import { PropertyInfoCard } from '@/components/PropertyInfoCard'
+import { MonthlyCostsBreakdown } from '@/components/MonthlyCostsCard'
 
 export default function Home() {
-  const [primaryInterestRate, setPrimaryInterestRate] = useState<number>(7.547)
-  const [FHAInterestRate, setFHAInterestRate] = useState<number>(7.45)
-  const [piggybackInterestRate, setPiggybackInterestRate] =
-    useState<number>(9.1)
+  const [primaryInterestRate, setPrimaryInterestRate] = useState<
+    number | undefined
+  >(7.547)
+  const [FHAInterestRate, setFHAInterestRate] = useState<number | undefined>(
+    7.45,
+  )
+  const [piggybackInterestRate, setPiggybackInterestRate] = useState<
+    number | undefined
+  >(9.1)
   const [loanType, setLoanType] = useState<string>('conventional')
   const [piggyBackLoanAmount, setPiggyBackLoanAmount] = useState<string>('')
-  // const [mortgageInsurance, setMortgageInsurance] = useState<boolean>(true)
   const [counties, setCounties] = useState<County[] | undefined>(undefined)
   const [selectedState, setSelectedState] = useState<string | undefined>(
     'initial',
@@ -85,15 +91,6 @@ export default function Home() {
       return setFHALoanLimit(selectedCounty.fha_4)
   }, [selectedCounty, loanType, propertyType, selectedState])
 
-  const resetPropertyVars = () => {
-    setSelectedState('initial')
-    setSelectedCounty(undefined)
-    setHomePrice('')
-    setPropertyType(1)
-    setPropertyTax('')
-    setHOADues('')
-  }
-
   return (
     <>
       <Head>
@@ -111,91 +108,71 @@ export default function Home() {
             <p className="text-3xl font-extrabold">What House Can I Afford?</p>
           </div>
           <div className="flex flex-col w-full justify-around mt-4 gap-6">
-            <div className="flex flex-col gap-2 items-start w-full">
-              <span className="flex gap-2">
-                <p className="text-2xl font-bold">Property Info</p>
-                <button
-                  className="border-2 px-2 w-fit h-fit mt-1"
-                  onClick={() => {
-                    resetPropertyVars()
-                  }}
-                >
-                  Reset
-                </button>
-              </span>
+            <PropertyInfoCard
+              selectedState={selectedState}
+              setSelectedState={setSelectedState}
+              states={states}
+              counties={counties}
+              selectedCounty={selectedCounty}
+              setSelectedCounty={setSelectedCounty}
+              homePrice={homePrice}
+              setHomePrice={setHomePrice}
+              propertyType={propertyType}
+              setPropertyType={setPropertyType}
+            />
 
+            <LoanInfoCard
+              loanType={loanType}
+              conventionalLoanLimit={conventionalLoanLimit}
+              FHAInterestRate={FHAInterestRate}
+              setLoanType={setLoanType}
+              setPrimaryLoanAmount={setPrimaryLoanAmount}
+              FHALoanLimit={FHALoanLimit}
+              setFHAInterestRate={setFHAInterestRate}
+              setPiggybackInterestRate={setPiggybackInterestRate}
+              setFHALoanAmount={setFHALoanAmount}
+              setDownPayment={setDownPayment}
+              setPrimaryInterestRate={setPrimaryInterestRate}
+              setConventionalLoanLimit={setConventionalLoanLimit}
+              piggybackInterestRate={piggybackInterestRate}
+              FHALoanAmount={FHALoanAmount}
+              primaryInterestRate={primaryInterestRate}
+              homePrice={homePrice}
+              downPayment={downPayment}
+              primaryLoanAmount={primaryLoanAmount}
+              propertyType={propertyType}
+              piggyBackLoanAmount={piggyBackLoanAmount}
+              setPiggyBackLoanAmount={setPiggyBackLoanAmount}
+            />
+
+            <MonthlyCostsBreakdown
+              primaryLoanAmount={primaryLoanAmount}
+              primaryInterestRate={primaryInterestRate}
+              piggybackInterestRate={piggybackInterestRate}
+              piggyBackLoanAmount={piggyBackLoanAmount}
+              FHAInterestRate={FHAInterestRate}
+            />
+
+            <div className="flex flex-col gap-2">
+              <p className="text-2xl font-bold">Income Info</p>
               <span className="flex gap-2">
-                <label htmlFor="state">State</label>
-                <select
-                  id="state"
-                  onChange={(e) => {
-                    setSelectedState(e.target.value)
-                  }}
-                  value={selectedState}
-                >
-                  <option disabled value={'initial'}>
-                    Select State
-                  </option>
-                  {states.map((state) => (
-                    <option key={state.name} value={state.abbreviation}>
-                      {state.name} ({state.abbreviation})
-                    </option>
-                  ))}
-                </select>
-              </span>
-              {selectedState !== 'initial' && (
-                <span className="flex gap-2">
-                  <label htmlFor="state">County/Region</label>
-                  <select
-                    id="state"
-                    className=""
-                    onChange={(e) => {
-                      const selectedCounty = counties?.find(
-                        (county) => county.id === e.target.value,
-                      )
-                      setSelectedCounty(selectedCounty)
-                    }}
-                    defaultValue="initial"
-                  >
-                    <option disabled value="initial">
-                      Select Region
-                    </option>
-                    {counties?.map((county) => (
-                      <option key={county.id} value={county.id}>
-                        {county.county}
-                      </option>
-                    ))}
-                  </select>
-                </span>
-              )}
-              <span className="flex gap-2">
-                <label htmlFor="price">Home Price</label>
-                $
-                <input
-                  id="price"
-                  placeholder={
-                    selectedCounty &&
-                    parsePrice(selectedCounty?.median) + ' (median)'
-                  }
-                  onChange={(e) => {
-                    setHomePrice(handlePriceChange(e.target.value))
-                  }}
-                  value={homePrice}
-                />
+                <label>Household Income (Annual)</label>
+                <input />
               </span>
               <span className="flex gap-2">
-                <label htmlFor="propertyType">Property Type</label>
-                <select
-                  id="propertyType"
-                  onChange={(e) => setPropertyType(parseInt(e.target.value))}
-                  value={propertyType}
-                >
-                  <option value="1">Single Family</option>
-                  <option disabled>---Multi-Family---</option>
-                  <option value="2">Duplex</option>
-                  <option value="3">Triplex</option>
-                  <option value="4">Fourplex</option>
-                </select>
+                <label>Rental Income (Monthly)</label>
+                <input />
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-2xl font-bold">Closing Costs</p>
+              <span className="flex gap-2">
+                <label>Appraisal</label>
+                <input />
+              </span>
+              <span className="flex gap-2">
+                <label>Inspection</label>
+                <input />
               </span>
               <span className="flex gap-2">
                 <label htmlFor="propTax">Property Taxes (Annual)</label>
@@ -227,53 +204,6 @@ export default function Home() {
                     setHOADues(handlePriceChange(e.target.value))
                   }}
                 />
-              </span>
-            </div>
-
-            <LoanInfoCard
-              loanType={loanType}
-              conventionalLoanLimit={conventionalLoanLimit}
-              FHAInterestRate={FHAInterestRate}
-              setLoanType={setLoanType}
-              setPrimaryLoanAmount={setPrimaryLoanAmount}
-              FHALoanLimit={FHALoanLimit}
-              setFHAInterestRate={setFHAInterestRate}
-              setPiggybackInterestRate={setPiggybackInterestRate}
-              setFHALoanAmount={setFHALoanAmount}
-              setDownPayment={setDownPayment}
-              setPrimaryInterestRate={setPrimaryInterestRate}
-              setConventionalLoanLimit={setConventionalLoanLimit}
-              piggybackInterestRate={piggybackInterestRate}
-              FHALoanAmount={FHALoanAmount}
-              primaryInterestRate={primaryInterestRate}
-              homePrice={homePrice}
-              downPayment={downPayment}
-              primaryLoanAmount={primaryLoanAmount}
-              propertyType={propertyType}
-              piggyBackLoanAmount={piggyBackLoanAmount}
-              setPiggyBackLoanAmount={setPiggyBackLoanAmount}
-            />
-
-            <div className="flex flex-col gap-2">
-              <p className="text-2xl font-bold">Income Info</p>
-              <span className="flex gap-2">
-                <label>Household Income (Annual)</label>
-                <input />
-              </span>
-              <span className="flex gap-2">
-                <label>Rental Income (Monthly)</label>
-                <input />
-              </span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <p className="text-2xl font-bold">Closing Costs</p>
-              <span className="flex gap-2">
-                <label>Appraisal</label>
-                <input />
-              </span>
-              <span className="flex gap-2">
-                <label>Inspection</label>
-                <input />
               </span>
             </div>
           </div>
