@@ -54,7 +54,7 @@ export const LoanInfoCard = ({
 }: Props) => {
   useEffect(() => {
     resetLoanVars()
-  }, [homePrice, propertyType, loanType])
+  }, [homePrice, propertyType])
 
   const resetLoanVars = () => {
     setPrimaryLoanAmount('')
@@ -62,6 +62,11 @@ export const LoanInfoCard = ({
     setPiggyBackLoanAmount('')
     setDownPayment('')
     setPrimaryInterestRate(7.547)
+    if (!['conventional', 'fha'].includes(loanType)) {
+      setLoanType('conventional')
+    }
+
+    setLoanType('conventional')
   }
 
   const cleanDownPayment = getCleanNumber(downPayment)
@@ -69,7 +74,7 @@ export const LoanInfoCard = ({
   const cleanPrimaryLoanAmount = getCleanNumber(primaryLoanAmount)
   const cleanMinDownPayment =
     cleanHomePrice *
-    (loanType === 'conventional' ? 0.03 : loanType === 'fha' ? 0.035 : 0.1)
+    (loanType === 'conventional' ? 0.03 : loanType === 'fha' ? 0.035 : 0.15)
   const loanLimit =
     loanType === 'conventional' || loanType === 'piggyback'
       ? conventionalLoanLimit
@@ -243,10 +248,15 @@ export const LoanInfoCard = ({
           <option value="conventional">Conventional 30-Year</option>
           <option value="fha">FHA</option>
           <option value="piggyback" disabled={piggyBackImpossible()}>
-            Piggyback
+            Piggyback{' '}
+            {propertyType !== 1 && '* Usually Not Possible on Multifamily *'}
           </option>
-          <option value="jumbo" disabled={jumboImpossible()}>
-            Jumbo
+          <option
+            value={`jumbo`}
+            disabled={jumboImpossible() || propertyType !== 1}
+          >
+            Jumbo{' '}
+            {propertyType !== 1 && '* Usually Not Possible on Multifamily *'}
           </option>
         </select>
       </span>

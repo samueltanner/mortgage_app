@@ -121,37 +121,41 @@ export default function Home() {
               setPropertyType={setPropertyType}
             />
 
-            <LoanInfoCard
-              loanType={loanType}
-              conventionalLoanLimit={conventionalLoanLimit}
-              FHAInterestRate={FHAInterestRate}
-              setLoanType={setLoanType}
-              setPrimaryLoanAmount={setPrimaryLoanAmount}
-              FHALoanLimit={FHALoanLimit}
-              setFHAInterestRate={setFHAInterestRate}
-              setPiggybackInterestRate={setPiggybackInterestRate}
-              setFHALoanAmount={setFHALoanAmount}
-              setDownPayment={setDownPayment}
-              setPrimaryInterestRate={setPrimaryInterestRate}
-              setConventionalLoanLimit={setConventionalLoanLimit}
-              piggybackInterestRate={piggybackInterestRate}
-              FHALoanAmount={FHALoanAmount}
-              primaryInterestRate={primaryInterestRate}
-              homePrice={homePrice}
-              downPayment={downPayment}
-              primaryLoanAmount={primaryLoanAmount}
-              propertyType={propertyType}
-              piggyBackLoanAmount={piggyBackLoanAmount}
-              setPiggyBackLoanAmount={setPiggyBackLoanAmount}
-            />
+            {homePrice && (
+              <LoanInfoCard
+                loanType={loanType}
+                conventionalLoanLimit={conventionalLoanLimit}
+                FHAInterestRate={FHAInterestRate}
+                setLoanType={setLoanType}
+                setPrimaryLoanAmount={setPrimaryLoanAmount}
+                FHALoanLimit={FHALoanLimit}
+                setFHAInterestRate={setFHAInterestRate}
+                setPiggybackInterestRate={setPiggybackInterestRate}
+                setFHALoanAmount={setFHALoanAmount}
+                setDownPayment={setDownPayment}
+                setPrimaryInterestRate={setPrimaryInterestRate}
+                setConventionalLoanLimit={setConventionalLoanLimit}
+                piggybackInterestRate={piggybackInterestRate}
+                FHALoanAmount={FHALoanAmount}
+                primaryInterestRate={primaryInterestRate}
+                homePrice={homePrice}
+                downPayment={downPayment}
+                primaryLoanAmount={primaryLoanAmount}
+                propertyType={propertyType}
+                piggyBackLoanAmount={piggyBackLoanAmount}
+                setPiggyBackLoanAmount={setPiggyBackLoanAmount}
+              />
+            )}
 
-            <MonthlyCostsBreakdown
-              primaryLoanAmount={primaryLoanAmount}
-              primaryInterestRate={primaryInterestRate}
-              piggybackInterestRate={piggybackInterestRate}
-              piggyBackLoanAmount={piggyBackLoanAmount}
-              FHAInterestRate={FHAInterestRate}
-            />
+            {primaryLoanAmount && (
+              <MonthlyCostsBreakdown
+                primaryLoanAmount={primaryLoanAmount}
+                primaryInterestRate={primaryInterestRate}
+                piggybackInterestRate={piggybackInterestRate}
+                piggyBackLoanAmount={piggyBackLoanAmount}
+                FHAInterestRate={FHAInterestRate}
+              />
+            )}
 
             <div className="flex flex-col gap-2">
               <p className="text-2xl font-bold">Income Info</p>

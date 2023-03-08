@@ -56,7 +56,7 @@ export const MonthlyCostsBreakdown = ({
         <label>Primary Loan Monthly Cost</label>
         <input
           disabled
-          value={primaryLoanMonthlyCost.toLocaleString('en-US', {
+          value={primaryLoanMonthlyCost?.toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
             maximumFractionDigits: 0,
@@ -67,7 +67,7 @@ export const MonthlyCostsBreakdown = ({
         <label>Piggyback Loan Monthly Cost</label>
         <input
           disabled
-          value={piggyBackMonthlyCost.toLocaleString('en-US', {
+          value={piggyBackMonthlyCost?.toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
             maximumFractionDigits: 0,
