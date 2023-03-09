@@ -20,3 +20,9 @@ export interface State {
   name: string
   abbreviation: string
 }
+
+export interface CustomProps {
+  customMortgageInsurance: boolean
+  customHomeOwnersInsurance: boolean
+  customPropertyTax: boolean
+}

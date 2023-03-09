@@ -1,38 +1,69 @@
 import Head from 'next/head'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { states, rates_by_county } from '@/lib/data'
-import { County, State } from '@/lib/types'
-import { parsePrice, getCleanNumber, handlePriceChange } from '@/lib/helpers'
+import { County, CustomProps } from '@/lib/types'
+import { getCleanNumber, handlePriceChange } from '@/lib/helpers'
 import { LoanInfoCard } from '@/components/LoanInfoCard'
 import { PropertyInfoCard } from '@/components/PropertyInfoCard'
 import { MonthlyCostsBreakdown } from '@/components/MonthlyCostsCard'
 
+const defaultCustomProps = {
+  customHomeOwnersInsurance: false,
+  customMortgageInsurance: false,
+  customPropertyTax: false,
+}
+
 export default function Home() {
   const [primaryInterestRate, setPrimaryInterestRate] = useState<
     number | undefined
-  >(7.547)
+  >(7.0)
   const [FHAInterestRate, setFHAInterestRate] = useState<number | undefined>(
-    7.45,
+    6.8,
   )
   const [piggybackInterestRate, setPiggybackInterestRate] = useState<
     number | undefined
-  >(9.1)
+  >(7.6)
   const [loanType, setLoanType] = useState<string>('conventional')
   const [piggyBackLoanAmount, setPiggyBackLoanAmount] = useState<string>('')
-  const [counties, setCounties] = useState<County[] | undefined>(undefined)
-  const [selectedState, setSelectedState] = useState<string | undefined>(
-    'initial',
-  )
-  const [selectedCounty, setSelectedCounty] = useState<County>()
-  const [homePrice, setHomePrice] = useState<string>('')
+  const [counties, setCounties] = useState<County[] | undefined>()
+  const [selectedState, setSelectedState] = useState<string | undefined>('OR')
+  const [selectedCounty, setSelectedCounty] = useState<County | undefined>()
+  const [homePrice, setHomePrice] = useState<string>('1,000,000')
   const [propertyType, setPropertyType] = useState<number>(1)
   const [conventionalLoanLimit, setConventionalLoanLimit] = useState<number>(0)
   const [FHALoanLimit, setFHALoanLimit] = useState<number>(0)
   const [downPayment, setDownPayment] = useState<string>('')
-  const [HOADues, setHOADues] = useState<string>('')
+  const [HOADues, setHOADues] = useState<string>('0')
   const [propertyTax, setPropertyTax] = useState<string>('')
   const [primaryLoanAmount, setPrimaryLoanAmount] = useState<string>('')
   const [FHALoanAmount, setFHALoanAmount] = useState<string>('')
+  const [mortgageInsurance, setMortgageInsurance] = useState<string>('')
+  const [homeOwnersInsurance, setHomeOwnersInsurance] = useState<string>('')
+  const [customProps, setCustomProps] = useState<CustomProps>({
+    customHomeOwnersInsurance: false,
+    customMortgageInsurance: false,
+    customPropertyTax: false,
+  })
+
+  useEffect(() => {
+    setSelectedCounty({
+      id: 'OR-017',
+      state_abr: 'OR',
+      state: ' OREGON ',
+      county_code: 17,
+      county: 'DESCHUTES COUNTY',
+      median: 600000,
+      gse_1: 726200,
+      gse_2: 929850,
+      gse_3: 1123900,
+      gse_4: 1396800,
+      limit_type: ' H ',
+      fha_1: 690000,
+      fha_2: 883300,
+      fha_3: 1067750,
+      fha_4: 1326950,
+    })
+  }, [])
 
   useEffect(() => {
     if (!selectedState) return
@@ -91,6 +122,18 @@ export default function Home() {
       return setFHALoanLimit(selectedCounty.fha_4)
   }, [selectedCounty, loanType, propertyType, selectedState])
 
+  useEffect(() => {
+    setHomeOwnersInsurance(((0.01 * getCleanNumber(homePrice)) / 12).toFixed())
+    setPropertyTax(((0.011 * getCleanNumber(homePrice)) / 12).toFixed())
+    setMortgageInsurance(((0.01 * getCleanNumber(homePrice)) / 12).toFixed())
+  }, [homePrice, loanType])
+
+  const getTotalHomeEquity = () => {
+    return (
+      (getCleanNumber(downPayment) + getCleanNumber(piggyBackLoanAmount)) /
+      getCleanNumber(homePrice)
+    )
+  }
   return (
     <>
       <Head>
@@ -102,8 +145,8 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="h-screen w-screen">
-        <div className="h-full w-full bg-blue-500 p-4">
+      <main className="h-screen w-screen ">
+        <div className="h-full w-full overflow-y-scroll bg-blue-500 p-4">
           <div className="bg-orange-500 flex justify-center p-2 -mt-4 -mx-4">
             <p className="text-3xl font-extrabold">What House Can I Afford?</p>
           </div>
@@ -119,6 +162,8 @@ export default function Home() {
               setHomePrice={setHomePrice}
               propertyType={propertyType}
               setPropertyType={setPropertyType}
+              setCustomProps={setCustomProps}
+              defaultCustomProps={defaultCustomProps}
             />
 
             {homePrice && (
@@ -144,6 +189,7 @@ export default function Home() {
                 propertyType={propertyType}
                 piggyBackLoanAmount={piggyBackLoanAmount}
                 setPiggyBackLoanAmount={setPiggyBackLoanAmount}
+                getTotalHomeEquity={getTotalHomeEquity}
               />
             )}
 
@@ -154,6 +200,20 @@ export default function Home() {
                 piggybackInterestRate={piggybackInterestRate}
                 piggyBackLoanAmount={piggyBackLoanAmount}
                 FHAInterestRate={FHAInterestRate}
+                loanType={loanType}
+                HOADues={HOADues}
+                setHOADues={setHOADues}
+                propertyTax={propertyTax}
+                setPropertyTax={setPropertyTax}
+                getTotalHomeEquity={getTotalHomeEquity}
+                mortgageInsurance={mortgageInsurance}
+                setMortgageInsurance={setMortgageInsurance}
+                homeOwnersInsurance={homeOwnersInsurance}
+                setHomeOwnersInsurance={setHomeOwnersInsurance}
+                customProps={customProps}
+                setCustomProps={setCustomProps}
+                homePrice={homePrice}
+                defaultCustomProps={defaultCustomProps}
               />
             )}
 

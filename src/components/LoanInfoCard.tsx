@@ -27,6 +27,7 @@ interface Props {
   propertyType: number
   piggyBackLoanAmount: string
   setPiggyBackLoanAmount: (value: string) => void
+  getTotalHomeEquity: () => number
 }
 
 export const LoanInfoCard = ({
@@ -46,11 +47,10 @@ export const LoanInfoCard = ({
   setFHAInterestRate,
   setPiggybackInterestRate,
   piggybackInterestRate,
-  FHALoanAmount,
-  setConventionalLoanLimit,
   propertyType,
   piggyBackLoanAmount,
   setPiggyBackLoanAmount,
+  getTotalHomeEquity,
 }: Props) => {
   useEffect(() => {
     resetLoanVars()
@@ -65,16 +65,25 @@ export const LoanInfoCard = ({
     if (!['conventional', 'fha'].includes(loanType)) {
       setLoanType('conventional')
     }
-
-    setLoanType('conventional')
   }
+
+  useEffect(() => {
+    setPiggyBackLoanAmount('')
+    maximizeBorrowing()
+  }, [loanType])
 
   const cleanDownPayment = getCleanNumber(downPayment)
   const cleanHomePrice = getCleanNumber(homePrice)
   const cleanPrimaryLoanAmount = getCleanNumber(primaryLoanAmount)
   const cleanMinDownPayment =
     cleanHomePrice *
-    (loanType === 'conventional' ? 0.03 : loanType === 'fha' ? 0.035 : 0.15)
+    (loanType === 'conventional'
+      ? 0.03
+      : loanType === 'fha'
+      ? 0.035
+      : loanType === 'piggyback'
+      ? 0.1
+      : 0.15)
   const loanLimit =
     loanType === 'conventional' || loanType === 'piggyback'
       ? conventionalLoanLimit
@@ -94,7 +103,7 @@ export const LoanInfoCard = ({
 
   const maximizeBorrowing = () => {
     if (cleanHomePrice <= loanLimit) {
-      setDownPayment(handlePriceChange(cleanMinDownPayment.toString()))
+      setDownPayment(handlePriceChange(cleanMinDownPayment.toFixed()))
       setPrimaryLoanAmount(
         handlePriceChange((cleanHomePrice - cleanMinDownPayment).toString()),
       )
@@ -102,7 +111,7 @@ export const LoanInfoCard = ({
     }
 
     if (loanType === 'jumbo') {
-      setDownPayment(handlePriceChange(cleanMinDownPayment.toString()))
+      setDownPayment(handlePriceChange(cleanMinDownPayment.toFixed()))
       setPrimaryLoanAmount(
         handlePriceChange((cleanHomePrice - cleanMinDownPayment).toString()),
       )
@@ -388,6 +397,9 @@ export const LoanInfoCard = ({
           </p>
         )}
       </span>
+      <p>
+        Total Equity At Purchase: {(getTotalHomeEquity() * 100).toFixed(2)}%
+      </p>
       <div className="flex flex-col">
         {(!downPayment || downPaymentTooLow()) && (
           <p>

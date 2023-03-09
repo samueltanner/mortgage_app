@@ -1,5 +1,6 @@
 import { County, State } from '@/lib/types'
 import { parsePrice, handlePriceChange, getCleanNumber } from '@/lib/helpers'
+import { CustomProps } from '@/lib/types'
 
 interface PropertyInfoCardProps {
   selectedState: string | undefined
@@ -12,6 +13,8 @@ interface PropertyInfoCardProps {
   setHomePrice: (price: string) => void
   propertyType: number
   setPropertyType: (type: number) => void
+  setCustomProps: (props: CustomProps) => void
+  defaultCustomProps: CustomProps
 }
 export const PropertyInfoCard = ({
   selectedState,
@@ -24,13 +27,15 @@ export const PropertyInfoCard = ({
   setHomePrice,
   propertyType,
   setPropertyType,
+  setCustomProps,
+  defaultCustomProps,
 }: PropertyInfoCardProps) => {
   const resetPropertyVars = () => {
     setSelectedState('initial')
     setSelectedCounty(undefined)
     setHomePrice('')
     setPropertyType(1)
-  
+    setCustomProps(defaultCustomProps)
   }
 
   return (
@@ -68,21 +73,20 @@ export const PropertyInfoCard = ({
       </span>
       {selectedState !== 'initial' && (
         <span className="flex gap-2">
-          <label htmlFor="state">County/Region</label>
+          <label htmlFor="county">County/Region</label>
           <select
-            id="state"
-            className=""
+            id="county"
             onChange={(e) => {
               const selectedCounty = counties?.find(
                 (county) => county.id === e.target.value,
               )
               setSelectedCounty(selectedCounty)
             }}
-            defaultValue="initial"
+            value={selectedCounty?.id}
           >
-            <option disabled value="initial">
+            {/* <option disabled value="initial">
               Select Region
-            </option>
+            </option> */}
             {counties?.map((county) => (
               <option key={county.id} value={county.id}>
                 {county.county}
@@ -112,7 +116,7 @@ export const PropertyInfoCard = ({
           onChange={(e) => setPropertyType(parseInt(e.target.value))}
           value={propertyType}
         >
-          <option value="1">Single Family</option>
+          <option value="1">Single Family (including w/ ADU)</option>
           <option disabled>---Multi-Family---</option>
           <option value="2">Duplex</option>
           <option value="3">Triplex</option>
