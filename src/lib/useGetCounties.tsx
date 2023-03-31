@@ -8,9 +8,12 @@ interface CountiesParams {
 export const useGetCounties = ({ state_abbr }: CountiesParams) => {
   const fetchCounties = async () => {
     const { data } = await axios.get(
-      `http://localhost:8000/county_list/?state_abbr=${
-        state_abbr ? state_abbr : ''
-      }`,
+      `${process.env.NEXT_PUBLIC_API_URL}/county_list/`,
+      {
+        params: {
+          state_abbr,
+        },
+      },
     )
     return data
   }
