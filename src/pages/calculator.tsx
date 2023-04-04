@@ -1,7 +1,7 @@
 import { CalculatorCard } from '@/components/CalculatorCard'
 import { CardOverlayIcon } from '@/components/CardOverlayIcon'
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { BiSearch } from 'react-icons/bi'
+import { BiSearch, BiRightArrowAlt, BiSliderAlt, BiCheck } from 'react-icons/bi'
 import { useGetPropertyInfo } from '@/lib/useGetPropertyInfo'
 import { useGetCounties } from '@/lib/useGetCounties'
 import { useGetLoanLimits } from '@/lib/useGetLoanLimits'
@@ -23,6 +23,7 @@ interface OptimizedLoan {
   primaryLoanAmount: number
   secondaryLoanAmount: number | null
   downPayment: number
+  equity: number
 }
 
 interface OptimizedLoans {
@@ -40,6 +41,11 @@ const Calculator = ({}) => {
   const [loanMaximums, setLoanMaximums] = useState<LoanMaximums>()
   const [downPayment, setDownPayment] = useState<number>(0)
   const [optimizedLoans, setOptimizedLoans] = useState<OptimizedLoans>()
+  const [loanSettingsExpanded, setLoanSettingsExpanded] =
+    useState<boolean>(false)
+  const [FHAEligible, setFHAEligible] = useState<boolean>(true)
+  const [piggyBackEligible, setPiggyBackEligible] = useState<boolean>(true)
+  const [jumboEligible, setJumboEligible] = useState<boolean>(true)
 
   const {
     data: propertyData,
@@ -68,6 +74,7 @@ const Calculator = ({}) => {
   })
 
   const urlInputRef = useRef<HTMLInputElement>(null)
+  const downPaymentInputRef = useRef<HTMLInputElement>(null)
 
   const handleSearchRedfinUrl = () => {
     if (!urlInputRef.current) return
@@ -153,6 +160,28 @@ const Calculator = ({}) => {
     return getLoanMaximums()
   }, [loanLimits, getLoanMaximums])
 
+  useEffect(() => {
+    if (!loanMaximums || !listPrice) return
+    const fhaLoanTerms = getOptimizedLoanTerms(
+      loanMaximums.fha_max,
+      listPrice,
+      'fha',
+      downPayment ? downPayment : null,
+    )
+    const conventionalLoanTerms = getOptimizedLoanTerms(
+      loanMaximums.conventional_max,
+      listPrice,
+      'conventional',
+      downPayment ? downPayment : null,
+    )
+    const optimizedLoanObj = {
+      fha: fhaLoanTerms,
+      conventional: conventionalLoanTerms,
+    }
+
+    setOptimizedLoans(optimizedLoanObj)
+  }, [loanMaximums, listPrice, downPayment])
+
   const propertyTypeName: {
     [key: string]: string
     one_unit: string
@@ -175,11 +204,15 @@ const Calculator = ({}) => {
     setListPrice(0)
   }
 
+  const getPercent = (num: number, denom: number) => {
+    return Number(((num / denom) * 100).toFixed(2))
+  }
+
   const getOptimizedLoanTerms = (
     loanMax: number,
     listPrice: number,
     loanType: string,
-    customDownPaymentAmount?: number,
+    customDownPaymentAmount?: number | null,
   ) => {
     const minPercentDown: {
       [key: string]: number
@@ -205,28 +238,17 @@ const Calculator = ({}) => {
         : listPrice - minDown,
       downPayment: (customDownPossible && customDownPaymentAmount) || minDown,
       secondaryLoanAmount: null,
+      equity: getPercent(
+        (customDownPossible && customDownPaymentAmount) || minDown,
+        listPrice,
+      ),
     }
   }
 
-  useEffect(() => {
-    if (!loanMaximums || !listPrice) return
-    const fhaLoanTerms = getOptimizedLoanTerms(
-      loanMaximums.fha_max,
-      listPrice,
-      'fha',
-    )
-    const conventionalLoanTerms = getOptimizedLoanTerms(
-      loanMaximums.conventional_max,
-      listPrice,
-      'conventional',
-    )
-    const optimizedLoanObj = {
-      fha: fhaLoanTerms,
-      conventional: conventionalLoanTerms,
-    }
-
-    setOptimizedLoans(optimizedLoanObj)
-  }, [loanMaximums, listPrice])
+  const handleCustomDownPayment = (downPayment: number) => {
+    console.log(downPayment)
+    setDownPayment(downPayment)
+  }
 
   return (
     <div className="grid h-screen w-screen grid-cols-2 gap-8 bg-gray-50 p-10 text-slate-900">
@@ -369,25 +391,123 @@ const Calculator = ({}) => {
           <h1 className="text-xl font-bold">Loan Info</h1>
           <span className="flex gap-2">
             <span className="flex flex-col">
-              <label htmlFor="down-payment">Down Payment</label>
-
-              <input
-                id="down-payment"
-                type="number"
-                className="w-[60%] rounded-md border-2 border-slate-900 bg-gray-50 px-2"
-                value={downPayment}
-                onChange={(e) => {
-                  setDownPayment(Number(e.target.value))
-                }}
-              />
+              <span className="flex w-fit items-end gap-4">
+                <button
+                  className={`my-2 flex h-10 w-10 flex-none items-center justify-center rounded-md border-2 ${
+                    loanSettingsExpanded
+                      ? 'border-teal-400 bg-teal-400 hover:bg-teal-200 '
+                      : 'border-slate-900 bg-gray-300 hover:bg-gray-400'
+                  }   duration-300 ease-in-out `}
+                  onClick={() => {
+                    setLoanSettingsExpanded(!loanSettingsExpanded)
+                  }}
+                >
+                  <BiSliderAlt className="h-6 w-6" />
+                </button>
+                {loanSettingsExpanded && (
+                  <div className="flex flex-col gap-2">
+                    <span className="flex flex-col">
+                      <label htmlFor="down-payment">Down Payment</label>
+                      <input
+                        id="down-payment"
+                        type="number"
+                        className="rounded-md border-2 border-slate-900 bg-gray-50 px-2"
+                        ref={downPaymentInputRef}
+                        value={downPayment || ''}
+                        onChange={(e) => {
+                          setDownPayment(Number(e.target.value))
+                        }}
+                      />
+                    </span>
+                    <span className="flex gap-2">
+                      <button
+                        id="fha-checkbox"
+                        onClick={() => {
+                          setFHAEligible(!FHAEligible)
+                        }}
+                      >
+                        <div
+                          className={`relative flex h-6 w-6 flex-none items-center justify-center rounded-md border-2 border-slate-900 bg-gray-50 px-2
+                      ${
+                        FHAEligible
+                          ? 'border-teal-800 bg-teal-400 hover:bg-teal-200 '
+                          : 'border-slate-900 bg-gray-300 hover:bg-gray-400'
+                      } duration-300 ease-in-out`}
+                        >
+                          {FHAEligible && (
+                            <BiCheck className="absolute h-5 w-5" />
+                          )}
+                        </div>
+                      </button>
+                      <label htmlFor="fha-checkbox">
+                        First-Time Home Buyer
+                      </label>
+                    </span>
+                    <span className="flex gap-2">
+                      <button
+                        id="fha-checkbox"
+                        onClick={() => {
+                          setPiggyBackEligible(!piggyBackEligible)
+                        }}
+                      >
+                        <div
+                          className={`relative flex h-6 w-6 flex-none items-center justify-center rounded-md border-2 border-slate-900 bg-gray-50 px-2
+                      ${
+                        piggyBackEligible
+                          ? 'border-teal-800 bg-teal-400 hover:bg-teal-200 '
+                          : 'border-slate-900 bg-gray-300 hover:bg-gray-400'
+                      } duration-300 ease-in-out`}
+                        >
+                          {piggyBackEligible && (
+                            <BiCheck className="absolute h-5 w-5" />
+                          )}
+                        </div>
+                      </button>
+                      <label htmlFor="fha-checkbox">
+                        Show Piggy Loan Options
+                      </label>
+                    </span>
+                    <span className="flex gap-2">
+                      <button
+                        id="fha-checkbox"
+                        onClick={() => {
+                          setJumboEligible(!jumboEligible)
+                        }}
+                      >
+                        <div
+                          className={`relative flex h-6 w-6 flex-none items-center justify-center rounded-md border-2 border-slate-900 bg-gray-50 px-2
+                      ${
+                        jumboEligible
+                          ? 'border-teal-800 bg-teal-400 hover:bg-teal-200 '
+                          : 'border-slate-900 bg-gray-300 hover:bg-gray-400'
+                      } duration-300 ease-in-out`}
+                        >
+                          {jumboEligible && (
+                            <BiCheck className="absolute h-5 w-5" />
+                          )}
+                        </div>
+                      </button>
+                      <label htmlFor="fha-checkbox">
+                        Show Jumbo Loan Options
+                      </label>
+                    </span>
+                    {/* <input
+                      type="checkbox"
+                      name=""
+                      id="fha-checkbox"
+                      className="rounded-md border-2 border-slate-900 bg-gray-50 px-2"
+                    /> */}
+                  </div>
+                )}
+              </span>
             </span>
           </span>
           <span className="flex w-full items-center justify-center">
             <hr className="my-2 flex w-full border-slate-900" />
           </span>
           <div className="flex flex-col gap-2">
-            <span className="flex items-end gap-4">
-              <span className="flex w-full flex-col">
+            <span className="flex flex-wrap gap-4">
+              <span className="flex w-fit flex-col">
                 <h2 className="font-bold">Conventional Mortgage</h2>
                 <p>Loan Maximum: ${loanMaximums?.conventional_max}</p>
                 <p>
@@ -397,13 +517,17 @@ const Calculator = ({}) => {
                 <p>
                   Down Payment: ${optimizedLoans?.conventional?.downPayment}
                 </p>
+                <p>Equity: {optimizedLoans?.conventional?.equity}%</p>
               </span>
-              <span className="flex w-full flex-col">
-                <h2 className="font-bold">FHA Mortgage</h2>
-                <p>Loan Maximum: ${loanMaximums?.fha_max}</p>
-                <p>Loan Amount: ${optimizedLoans?.fha?.primaryLoanAmount}</p>
-                <p>Down Payment: ${optimizedLoans?.fha?.downPayment}</p>
-              </span>
+              {FHAEligible && (
+                <span className="flex w-fit flex-col">
+                  <h2 className="font-bold">FHA Mortgage</h2>
+                  <p>Loan Maximum: ${loanMaximums?.fha_max}</p>
+                  <p>Loan Amount: ${optimizedLoans?.fha?.primaryLoanAmount}</p>
+                  <p>Down Payment: ${optimizedLoans?.fha?.downPayment}</p>
+                  <p>Equity: {optimizedLoans?.fha?.equity}%</p>
+                </span>
+              )}
             </span>
           </div>
         </CalculatorCard>
