@@ -6,6 +6,7 @@ interface CountiesParams {
 }
 
 export const useGetCounties = ({ state_abbr }: CountiesParams) => {
+  const paramsPresent = !!state_abbr && state_abbr !== ''
   const fetchCounties = async () => {
     const { data } = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/county_list/`,
@@ -26,5 +27,7 @@ export const useGetCounties = ({ state_abbr }: CountiesParams) => {
     return data.counties
   }
 
-  return useQuery(['counties', state_abbr], fetchCounties)
+  return useQuery(['counties', state_abbr], fetchCounties, {
+    enabled: paramsPresent,
+  })
 }

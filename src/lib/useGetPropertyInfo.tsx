@@ -10,28 +10,20 @@ export const useGetPropertyInfo = ({
   listing_url,
   get_loan_limits,
 }: CountiesParams) => {
+  const listingURLPresent = !!listing_url && listing_url !== ''
   const fetchCounties = async () => {
-    if (listing_url) {
-      const { data } = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/property_info/`,
-        {
-          params: {
-            listing_url,
-            get_loan_limits,
-          },
+    const { data } = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/property_info/`,
+      {
+        params: {
+          listing_url,
+          get_loan_limits,
         },
-      )
-      return data
-    }
-    if (!listing_url) {
-      return {
-        isLoading: false,
-        isError: false,
-        isSuccess: true,
-        data: null,
-      }
-    }
+      },
+    )
+    return data
   }
-
-  return useQuery(['listing', listing_url], fetchCounties)
+  return useQuery(['listing', listing_url], fetchCounties, {
+    enabled: listingURLPresent,
+  })
 }

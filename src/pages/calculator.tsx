@@ -1,9 +1,10 @@
 import { CalculatorCard } from '@/components/CalculatorCard'
 import { CardOverlayIcon } from '@/components/CardOverlayIcon'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { BiSearch } from 'react-icons/bi'
 import { useGetPropertyInfo } from '@/lib/useGetPropertyInfo'
 import { useGetCounties } from '@/lib/useGetCounties'
+import { useGetLoanLimits } from '@/lib/useGetLoanLimits'
 import Image from 'next/image'
 import { states } from '@/lib/data'
 
@@ -13,13 +14,20 @@ interface County {
   state_abbr: string
 }
 
+interface loanMaximums {
+  fha_max: number
+  conventional_max: number
+}
+
 const Calculator = ({}) => {
   const [propertyExpanded, setPropertyExpanded] = useState<boolean>(true)
   const [listingState, setListingState] = useState<string>('')
   const [listingCounty, setListingCounty] = useState<string>('')
   const [listingURL, setListingURL] = useState<string>('')
   const [propertyType, setPropertyType] = useState<string>('')
-  const [listPrice, setListPrice] = useState<number>()
+  const [listPrice, setListPrice] = useState<number>(0)
+  const [loanMaximums, setLoanMaximums] = useState<loanMaximums>()
+  const [downPayment, setDownPayment] = useState<number>(0)
 
   const {
     data: propertyData,
@@ -37,6 +45,16 @@ const Calculator = ({}) => {
     isSuccess: countiesSuccess,
   } = useGetCounties({ state_abbr: listingState })
 
+  const {
+    data: loanLimits,
+    error: loanLimitsError,
+    isLoading: loanLimitsLoading,
+    isSuccess: loanLimitsSuccess,
+  } = useGetLoanLimits({
+    state_abbr: listingState,
+    county_name: listingCounty,
+  })
+
   const urlInputRef = useRef<HTMLInputElement>(null)
 
   const handleSearchRedfinUrl = () => {
@@ -44,39 +62,101 @@ const Calculator = ({}) => {
     setListingURL(urlInputRef.current.value)
   }
 
-  useEffect(() => {
-    if (!propertyData) return
-    setListPrice(propertyData.list_price)
-    setListingState(propertyData.address?.state)
-    setListingCounty(propertyData.address?.county.toUpperCase())
-    getNumberOfUnits()
-  }, [propertyData])
-
-  useEffect(() => {
-    if (propertyLoading) return handleReset()
-  }, [])
-
-  const getNumberOfUnits = () => {
+  const getNumberOfUnits = useCallback(() => {
     if (!propertyData || !propertyData.property_type) return
+
     const classification =
       propertyData.property_type?.classification?.toLowerCase()
     const units = propertyData.property_type.units
-    if (['single family', 'condo'].includes(classification) || units === 1)
-      return setPropertyType('Single Family')
+
+    if (['single family', 'condo'].includes(classification) || units === 1) {
+      setPropertyType('one_unit')
+      return
+    }
 
     if (['duplex'].includes(classification) || units === 2) {
-      return setPropertyType('Duplex')
+      setPropertyType('two_unit')
+      return
     }
 
     if (['triplex'].includes(classification) || units === 3) {
-      return setPropertyType('Triplex')
+      setPropertyType('three_unit')
+      return
     }
 
     if (['quadruplex', 'fourplex'].includes(classification) || units === 4) {
-      return setPropertyType('Fourplex')
+      setPropertyType('four_unit')
+      return
     }
 
     setPropertyType('')
+  }, [propertyData])
+
+  const getLoanMaximums = useCallback(() => {
+    if (propertyData) {
+      const { loan_limits } = propertyData
+      console.log('loan_linits', loan_limits, 'propertyData', propertyData)
+      if (!loan_limits) return
+
+      const { fha, conventional } = loan_limits
+      if (!fha || !conventional) return
+
+      if (!propertyType) return
+
+      const fha_max = fha[propertyType]
+      const conventional_max = conventional[propertyType]
+
+      setLoanMaximums({
+        fha_max: fha_max,
+        conventional_max: conventional_max,
+      })
+    }
+
+    if (loanLimits) {
+      const { fha, conventional } = loanLimits
+      if (!fha || !conventional) return
+
+      if (!propertyType) return
+
+      const fha_max = fha[propertyType]
+      const conventional_max = conventional[propertyType]
+
+      setLoanMaximums({
+        fha_max: fha_max,
+        conventional_max: conventional_max,
+      })
+    }
+  }, [propertyData, propertyType, setLoanMaximums, loanLimits])
+
+  useEffect(() => {
+    if (!propertyData) return
+    console.log('property', !!propertyData, propertyData)
+    setListPrice(propertyData.list_price ?? 0)
+    setListingState(propertyData.address?.state)
+    setListingCounty(propertyData.address?.county.toUpperCase())
+    getNumberOfUnits()
+    getLoanMaximums()
+  }, [propertyData, getLoanMaximums, getNumberOfUnits])
+
+  useEffect(() => {
+    if (listingState && listingCounty && propertyType) getLoanMaximums()
+    console.log('max', loanMaximums)
+  }, [getLoanMaximums, listingCounty, listingState, propertyType])
+  // useEffect(() => {
+  //   if (propertyLoading) return handleReset()
+  // }, [propertyLoading])
+
+  const propertyTypeName: {
+    [key: string]: string
+    one_unit: string
+    two_unit: string
+    three_unit: string
+    four_unit: string
+  } = {
+    one_unit: 'Single Family',
+    two_unit: 'Duplex',
+    three_unit: 'Triplex',
+    four_unit: 'Fourplex',
   }
 
   const handleReset = () => {
@@ -84,7 +164,8 @@ const Calculator = ({}) => {
     setListingState('')
     setListingCounty('')
     setPropertyType('')
-    setListPrice(undefined)
+    setLoanMaximums(undefined)
+    setListPrice(0)
   }
 
   return (
@@ -128,7 +209,7 @@ const Calculator = ({}) => {
 
                     <input
                       id="home-price"
-                      type="text"
+                      type="number"
                       className="w-[60%] rounded-md border-2 border-slate-900 bg-gray-50 px-2"
                       value={listPrice}
                       onChange={(e) => {
@@ -171,7 +252,6 @@ const Calculator = ({}) => {
                       onChange={(e) => {
                         setListingCounty(e.target.value)
                       }}
-                      disabled={!counties?.length}
                       value={listingCounty}
                     >
                       <option value={''} key={0} disabled>
@@ -203,16 +283,16 @@ const Calculator = ({}) => {
                     <option value={''} key={0} disabled>
                       ** Property Type **
                     </option>
-                    <option value={'Single Family'} key={1}>
+                    <option value={'one_unit'} key={1}>
                       Single Family
                     </option>
-                    <option value={'Duplex'} key={2}>
+                    <option value={'two_unit'} key={2}>
                       Duplex
                     </option>
-                    <option value={'Triplex'} key={3}>
+                    <option value={'three_unit'} key={3}>
                       Triplex
                     </option>
-                    <option value={'Fourplex'} key={4}>
+                    <option value={'four_unit'} key={4}>
                       Fourplex
                     </option>
                   </select>
@@ -227,6 +307,35 @@ const Calculator = ({}) => {
             <CardOverlayIcon size="small" icon="loan" />
           </span>
           <h1 className="text-xl font-bold">Loan Info</h1>
+          <span className="flex gap-2">
+            <span className="flex flex-col">
+              <label htmlFor="down-payment">Down Payment</label>
+
+              <input
+                id="down-payment"
+                type="number"
+                className="w-[60%] rounded-md border-2 border-slate-900 bg-gray-50 px-2"
+                value={downPayment}
+                onChange={(e) => {
+                  setDownPayment(Number(e.target.value))
+                }}
+              />
+            </span>
+          </span>
+          <div className="flex flex-col gap-2">
+            <span className="flex items-end gap-4">
+              <span className="flex w-full flex-col">
+                <label htmlFor="redfin-url">Conventional 30</label>
+                <p>
+                  Conventional Loan Maximum: {loanMaximums?.conventional_max}
+                </p>
+              </span>
+              <span className="flex w-full flex-col">
+                <label htmlFor="redfin-url">Conventional 30</label>
+                <p>FHA Loan Maximum: {loanMaximums?.fha_max}</p>
+              </span>
+            </span>
+          </div>
         </CalculatorCard>
 
         <CalculatorCard>
@@ -243,7 +352,7 @@ const Calculator = ({}) => {
           <h1 className="text-xl font-bold">Income & Expenses</h1>
         </CalculatorCard>
       </div>
-      <div className="flex flex-col ">
+      <div className=" flex flex-col">
         <CalculatorCard>
           <div className="flex flex-col gap-2">
             <h1 className="text-xl font-bold">Mortgage Breakdown</h1>
@@ -257,7 +366,6 @@ const Calculator = ({}) => {
             )}
             <ul>
               {listPrice && <li>List Price: ${listPrice}</li>}
-              {propertyType && <li>Property Type: {propertyType}</li>}
               {propertyData?.address?.street_address && (
                 <li>
                   Address: {propertyData?.address?.street_address},{' '}
@@ -265,13 +373,11 @@ const Calculator = ({}) => {
                 </li>
               )}
               {listingCounty && <li>County: {listingCounty}</li>}
-              {propertyData?.property_type?.classification && (
-                <li>
-                  Classification: {propertyData?.property_type?.classification}
-                </li>
+              {propertyType && (
+                <li>Property Type: {propertyTypeName[propertyType]}</li>
               )}
               {propertyData?.property_type?.units && (
-                <li>Units: {propertyData?.property_type?.units}</li>
+                <li># of Units: {propertyData?.property_type?.units}</li>
               )}
             </ul>
           </div>
