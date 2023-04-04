@@ -15,7 +15,15 @@ export const useGetCounties = ({ state_abbr }: CountiesParams) => {
         },
       },
     )
-    return data
+    if (!state_abbr || state_abbr === '') {
+      return {
+        isLoading: false,
+        isError: false,
+        isSuccess: false,
+        data: [],
+      }
+    }
+    return data.counties
   }
 
   return useQuery(['counties', state_abbr], fetchCounties)

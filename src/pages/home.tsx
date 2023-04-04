@@ -1,6 +1,10 @@
 import { TutorialCard } from '@/components/TutorialCard'
 import { BiCalculator, BiCollection } from 'react-icons/bi'
+import Router from 'next/router'
+
 const Home = ({}) => {
+  const router = Router
+
   return (
     <div className="flex h-screen w-screen items-center justify-center bg-gray-200 text-slate-900">
       <TutorialCard>
@@ -21,7 +25,10 @@ const Home = ({}) => {
         </p>
         <div className="flex w-full items-center justify-center gap-4">
           <button className="flex h-10 w-10 items-center justify-center rounded-md border-2 border-teal-400 bg-teal-400 duration-300 ease-in-out hover:bg-teal-200 ">
-            <BiCalculator className="h-6 w-6" />
+            <BiCalculator
+              className="h-6 w-6"
+              onClick={() => router.push('/calculator')}
+            />
           </button>
           <button className="flex h-10 w-10 items-center justify-center rounded-md border-2 border-teal-400 bg-teal-400 duration-300 ease-in-out hover:bg-teal-200 ">
             <BiCollection className="h-6 w-6" />
