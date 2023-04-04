@@ -14,9 +14,20 @@ interface County {
   state_abbr: string
 }
 
-interface loanMaximums {
+interface LoanMaximums {
   fha_max: number
   conventional_max: number
+}
+
+interface OptimizedLoan {
+  primaryLoanAmount: number
+  secondaryLoanAmount: number | null
+  downPayment: number
+}
+
+interface OptimizedLoans {
+  fha: OptimizedLoan
+  conventional: OptimizedLoan
 }
 
 const Calculator = ({}) => {
@@ -26,8 +37,9 @@ const Calculator = ({}) => {
   const [listingURL, setListingURL] = useState<string>('')
   const [propertyType, setPropertyType] = useState<string>('')
   const [listPrice, setListPrice] = useState<number>(0)
-  const [loanMaximums, setLoanMaximums] = useState<loanMaximums>()
+  const [loanMaximums, setLoanMaximums] = useState<LoanMaximums>()
   const [downPayment, setDownPayment] = useState<number>(0)
+  const [optimizedLoans, setOptimizedLoans] = useState<OptimizedLoans>()
 
   const {
     data: propertyData,
@@ -95,7 +107,6 @@ const Calculator = ({}) => {
   const getLoanMaximums = useCallback(() => {
     if (propertyData) {
       const { loan_limits } = propertyData
-      console.log('loan_linits', loan_limits, 'propertyData', propertyData)
       if (!loan_limits) return
 
       const { fha, conventional } = loan_limits
@@ -130,7 +141,6 @@ const Calculator = ({}) => {
 
   useEffect(() => {
     if (!propertyData) return
-    console.log('property', !!propertyData, propertyData)
     setListPrice(propertyData.list_price ?? 0)
     setListingState(propertyData.address?.state)
     setListingCounty(propertyData.address?.county.toUpperCase())
@@ -139,12 +149,9 @@ const Calculator = ({}) => {
   }, [propertyData, getLoanMaximums, getNumberOfUnits])
 
   useEffect(() => {
-    if (listingState && listingCounty && propertyType) getLoanMaximums()
-    console.log('max', loanMaximums)
-  }, [getLoanMaximums, listingCounty, listingState, propertyType])
-  // useEffect(() => {
-  //   if (propertyLoading) return handleReset()
-  // }, [propertyLoading])
+    if (!loanLimits) return
+    return getLoanMaximums()
+  }, [loanLimits, getLoanMaximums])
 
   const propertyTypeName: {
     [key: string]: string
@@ -167,6 +174,59 @@ const Calculator = ({}) => {
     setLoanMaximums(undefined)
     setListPrice(0)
   }
+
+  const getOptimizedLoanTerms = (
+    loanMax: number,
+    listPrice: number,
+    loanType: string,
+    customDownPaymentAmount?: number,
+  ) => {
+    const minPercentDown: {
+      [key: string]: number
+    } = {
+      fha: 0.035,
+      conventional: 0.03,
+    }
+
+    const getMinimumDownPayment = () => {
+      let minDown = listPrice * minPercentDown[loanType]
+      if (listPrice - loanMax > minDown) minDown = listPrice - loanMax
+      return minDown
+    }
+    const minDown = Math.floor(getMinimumDownPayment())
+
+    const customDownPossible = customDownPaymentAmount
+      ? customDownPaymentAmount >= minDown
+      : false
+
+    return {
+      primaryLoanAmount: customDownPossible
+        ? listPrice - customDownPaymentAmount!
+        : listPrice - minDown,
+      downPayment: (customDownPossible && customDownPaymentAmount) || minDown,
+      secondaryLoanAmount: null,
+    }
+  }
+
+  useEffect(() => {
+    if (!loanMaximums || !listPrice) return
+    const fhaLoanTerms = getOptimizedLoanTerms(
+      loanMaximums.fha_max,
+      listPrice,
+      'fha',
+    )
+    const conventionalLoanTerms = getOptimizedLoanTerms(
+      loanMaximums.conventional_max,
+      listPrice,
+      'conventional',
+    )
+    const optimizedLoanObj = {
+      fha: fhaLoanTerms,
+      conventional: conventionalLoanTerms,
+    }
+
+    setOptimizedLoans(optimizedLoanObj)
+  }, [loanMaximums, listPrice])
 
   return (
     <div className="grid h-screen w-screen grid-cols-2 gap-8 bg-gray-50 p-10 text-slate-900">
@@ -322,17 +382,27 @@ const Calculator = ({}) => {
               />
             </span>
           </span>
+          <span className="flex w-full items-center justify-center">
+            <hr className="my-2 flex w-full border-slate-900" />
+          </span>
           <div className="flex flex-col gap-2">
             <span className="flex items-end gap-4">
               <span className="flex w-full flex-col">
-                <label htmlFor="redfin-url">Conventional 30</label>
+                <h2 className="font-bold">Conventional Mortgage</h2>
+                <p>Loan Maximum: ${loanMaximums?.conventional_max}</p>
                 <p>
-                  Conventional Loan Maximum: {loanMaximums?.conventional_max}
+                  Loan Amount: $
+                  {optimizedLoans?.conventional?.primaryLoanAmount}
+                </p>
+                <p>
+                  Down Payment: ${optimizedLoans?.conventional?.downPayment}
                 </p>
               </span>
               <span className="flex w-full flex-col">
-                <label htmlFor="redfin-url">Conventional 30</label>
-                <p>FHA Loan Maximum: {loanMaximums?.fha_max}</p>
+                <h2 className="font-bold">FHA Mortgage</h2>
+                <p>Loan Maximum: ${loanMaximums?.fha_max}</p>
+                <p>Loan Amount: ${optimizedLoans?.fha?.primaryLoanAmount}</p>
+                <p>Down Payment: ${optimizedLoans?.fha?.downPayment}</p>
               </span>
             </span>
           </div>
