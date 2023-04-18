@@ -20,13 +20,10 @@ export const LoanInfoCard = ({
 
   const downPaymentInputRef = useRef<HTMLInputElement>(null)
 
-  console.log(optimizedLoans)
-
   return (
     <div className="flex flex-col gap-2">
       <h1 className="text-xl font-bold">Loan Options</h1>
       <span className="flex w-[40%] flex-col">
-        <button>Optimize Loans</button>
         <label htmlFor="down-payment">Down Payment</label>
         <input
           id="down-payment"
@@ -47,7 +44,7 @@ export const LoanInfoCard = ({
         <span className="flex flex-wrap gap-4">
           <span className="flex w-fit flex-col">
             <h2 className="font-bold">Conventional Mortgage</h2>
-            <p>Loan Maximum: ${loanMaximums?.conventional_max}</p>
+            <p>Loan Maximum: ${optimizedLoans?.conventional?.loanLimit}</p>
             <p>
               Loan Amount: ${optimizedLoans?.conventional?.primaryLoanAmount}
             </p>

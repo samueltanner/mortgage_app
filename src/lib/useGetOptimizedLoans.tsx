@@ -26,8 +26,6 @@ export const useGetOptimizedLoans = ({
     county_name: county_name,
   })
 
-  console.log(state_abbr, county_name, property_type, listPrice, loanLimits)
-
   const minPercentDown: {
     [key: string]: number
   } = {
@@ -131,24 +129,28 @@ export const useGetOptimizedLoans = ({
 
   const optimizedLoans = {
     fha: {
+      loanLimit: loanLimits?.fha[property_type],
       primaryLoanAmount: getPrimaryLoanAmount('fha'),
       downPayment: getDownPayment('fha'),
       secondaryLoanAmount: getSecondaryLoanAmount('fha'),
       equity: getEquity('fha'),
     },
     conventional: {
+      loanLimit: loanLimits?.conventional[property_type],
       primaryLoanAmount: getPrimaryLoanAmount('conventional'),
       downPayment: getDownPayment('conventional'),
       secondaryLoanAmount: getSecondaryLoanAmount('conventional'),
       equity: getEquity('conventional'),
     },
     piggy_back: {
+      loanLimit: loanLimits?.conventional[property_type],
       primaryLoanAmount: getPrimaryLoanAmount('piggy_back'),
       downPayment: getDownPayment('piggy_back'),
       secondaryLoanAmount: getSecondaryLoanAmount('piggy_back'),
       equity: getEquity('piggy_back'),
     },
     jumbo: {
+      loanLimit: loanLimits?.conventional[property_type],
       primaryLoanAmount: getPrimaryLoanAmount('jumbo'),
       downPayment: getDownPayment('jumbo'),
       secondaryLoanAmount: getSecondaryLoanAmount('jumbo'),

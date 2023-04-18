@@ -21,6 +21,7 @@ export interface LoanMaximums {
 }
 
 export interface OptimizedLoan {
+  loanLimit: number | undefined
   primaryLoanAmount: number | undefined
   secondaryLoanAmount: number | undefined
   downPayment: number | undefined

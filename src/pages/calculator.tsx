@@ -18,7 +18,7 @@ const Calculator = ({}) => {
   const [listingCounty, setListingCounty] = useState<string>('')
   const [listingURL, setListingURL] = useState<string>('')
   const [propertyType, setPropertyType] = useState<string>('')
-  const [listPrice, setListPrice] = useState<number>()
+  const [listPrice, setListPrice] = useState<number>(0)
   const [loanMaximums, setLoanMaximums] = useState<LoanMaximums>()
   const [downPayment, setDownPayment] = useState<number>(0)
   const [optimizedLoans, setOptimizedLoans] = useState<OptimizedLoans>()
@@ -87,54 +87,14 @@ const Calculator = ({}) => {
     setPropertyType('')
   }, [propertyData])
 
-  const getLoanMaximums = useCallback(() => {
-    if (propertyData) {
-      const { loan_limits } = propertyData
-      if (!loan_limits) return
-
-      const { fha, conventional } = loan_limits
-      if (!fha || !conventional) return
-
-      if (!propertyType) return
-
-      const fha_max = fha[propertyType]
-      const conventional_max = conventional[propertyType]
-
-      setLoanMaximums({
-        fha_max: fha_max,
-        conventional_max: conventional_max,
-      })
-    }
-
-    if (loanLimits) {
-      const { fha, conventional } = loanLimits
-      if (!fha || !conventional) return
-
-      if (!propertyType) return
-
-      const fha_max = fha[propertyType]
-      const conventional_max = conventional[propertyType]
-
-      setLoanMaximums({
-        fha_max: fha_max,
-        conventional_max: conventional_max,
-      })
-    }
-  }, [propertyData, propertyType, setLoanMaximums, loanLimits])
-
   useEffect(() => {
     setListingCounty('')
+    setPropertyType('')
   }, [listingState])
 
   useEffect(() => {
-    // if (!listingState || !listingCounty) return
     setOptimizedLoans(optimizedLoansObj)
   }, [loanMaximums, listPrice, downPayment, propertyType])
-
-  useEffect(() => {
-    getLoanMaximums()
-    // console.log('loanMaximums', loanMaximums)
-  }, [propertyData, listingState, listingCounty])
 
   const handleReset = () => {
     setListingURL('')
@@ -143,72 +103,6 @@ const Calculator = ({}) => {
     setPropertyType('')
     setLoanMaximums(undefined)
     setListPrice(0)
-  }
-
-  const getOptimizedLoanTerms = (
-    loanMax: number,
-    listPrice: number,
-    loanType: string,
-    customDownPaymentAmount?: number | null,
-  ) => {
-    const minPercentDown: {
-      [key: string]: number
-    } = {
-      fha: 0.035,
-      conventional: 0.03,
-      piggy_back: 0.1,
-    }
-
-    const getMinimumDownPayment = () => {
-      let minDown = listPrice * minPercentDown[loanType]
-      if (listPrice - loanMax > minDown && loanType !== 'piggy_back')
-        minDown = listPrice - loanMax
-      if (loanType === 'piggy_back')
-        minDown = listPrice * minPercentDown.piggy_back
-      return minDown
-    }
-
-    const minDown = Math.floor(getMinimumDownPayment())
-
-    const customDownPossible = () => {
-      // if (loanType === 'piggy_back') return true
-      return customDownPaymentAmount
-        ? customDownPaymentAmount >= minDown
-        : false
-    }
-
-    const getPrimaryLoanAmount = () => {
-      if (!optimizedLoans) return
-      if (loanType === 'piggy_back') {
-        return loanMax
-      }
-      const primaryLoanAmount = customDownPossible()
-        ? listPrice - customDownPaymentAmount!
-        : listPrice - minDown
-      return primaryLoanAmount
-    }
-
-    const getSecondaryLoanAmount = () => {
-      if (!optimizedLoans) return
-      const { piggy_back } = optimizedLoans
-      if (!piggy_back) return
-      const { downPayment, primaryLoanAmount } = piggy_back
-      if (!downPayment || !primaryLoanAmount) return
-      return (
-        listPrice - primaryLoanAmount - downPayment ||
-        minPercentDown.piggy_back * listPrice
-      )
-    }
-
-    return {
-      primaryLoanAmount: getPrimaryLoanAmount(),
-      downPayment: (customDownPossible() && customDownPaymentAmount) || minDown,
-      secondaryLoanAmount: getSecondaryLoanAmount(),
-      equity: getPercent(
-        (customDownPossible() && customDownPaymentAmount) || minDown,
-        listPrice,
-      ),
-    }
   }
 
   return (
