@@ -88,6 +88,16 @@ const Calculator = ({}) => {
   }, [propertyData])
 
   useEffect(() => {
+    console.log(propertyData)
+    if (propertyData) {
+      getNumberOfUnits()
+      setListingCounty(propertyData.address.county)
+      setListingState(propertyData.address.state)
+      setListPrice(propertyData.list_price)
+    }
+  }, [propertyData])
+
+  useEffect(() => {
     setListingCounty('')
     setPropertyType('')
   }, [listingState])
@@ -95,15 +105,6 @@ const Calculator = ({}) => {
   useEffect(() => {
     setOptimizedLoans(optimizedLoansObj)
   }, [loanMaximums, listPrice, downPayment, propertyType])
-
-  const handleReset = () => {
-    setListingURL('')
-    setListingState('')
-    setListingCounty('')
-    setPropertyType('')
-    setLoanMaximums(undefined)
-    setListPrice(0)
-  }
 
   return (
     <div className="grid h-screen w-screen grid-cols-2 gap-8 overflow-y-scroll bg-gray-50 p-10 text-slate-900">

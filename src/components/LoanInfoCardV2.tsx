@@ -54,7 +54,7 @@ export const LoanInfoCard = ({
 
           <span className="flex w-fit flex-col">
             <h2 className="font-bold">FHA Mortgage</h2>
-            <p>Loan Maximum: ${loanMaximums?.fha_max}</p>
+            <p>Loan Maximum: ${optimizedLoans?.fha?.loanLimit}</p>
             <p>Loan Amount: ${optimizedLoans?.fha?.primaryLoanAmount}</p>
             <p>Down Payment: ${optimizedLoans?.fha?.downPayment}</p>
             <p>Equity: {optimizedLoans?.fha?.equity}%</p>
@@ -62,7 +62,9 @@ export const LoanInfoCard = ({
 
           <span className="flex w-fit flex-col">
             <h2 className="font-bold">Piggy Back Mortgage</h2>
-            <p>Primary Loan Maximum: ${loanMaximums?.conventional_max}</p>
+            <p>
+              Primary Loan Maximum: ${optimizedLoans?.piggy_back?.loanLimit}
+            </p>
             <p>
               Primary Loan Amount: $
               {optimizedLoans?.piggy_back?.primaryLoanAmount}
@@ -74,6 +76,15 @@ export const LoanInfoCard = ({
 
             <p>Down Payment: ${optimizedLoans?.piggy_back?.downPayment}</p>
             <p>Equity: {optimizedLoans?.piggy_back?.equity}%</p>
+          </span>
+
+          <span className="flex w-fit flex-col">
+            <h2 className="font-bold">Jumbo Mortgage</h2>
+            <p>
+              Primary Loan Amount: ${optimizedLoans?.jumbo?.primaryLoanAmount}
+            </p>
+            <p>Down Payment: ${optimizedLoans?.jumbo?.downPayment}</p>
+            <p>Equity: {optimizedLoans?.jumbo?.equity}%</p>
           </span>
 
           {/* <span className="flex w-fit flex-col">

@@ -26,6 +26,8 @@ export const useGetOptimizedLoans = ({
     county_name: county_name,
   })
 
+  console.log('loanLimits', loanLimits)
+
   const minPercentDown: {
     [key: string]: number
   } = {
@@ -150,7 +152,7 @@ export const useGetOptimizedLoans = ({
       equity: getEquity('piggy_back'),
     },
     jumbo: {
-      loanLimit: loanLimits?.conventional[property_type],
+      loanLimit: undefined,
       primaryLoanAmount: getPrimaryLoanAmount('jumbo'),
       downPayment: getDownPayment('jumbo'),
       secondaryLoanAmount: getSecondaryLoanAmount('jumbo'),
