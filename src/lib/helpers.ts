@@ -29,3 +29,7 @@ export const parsePrice = (
     const newValue = event.target.valueAsNumber;
     return newValue;
   };
+
+  export const getPercent = (num: number, denom: number) => {
+    return Number(((num / denom) * 100).toFixed(2))
+  }

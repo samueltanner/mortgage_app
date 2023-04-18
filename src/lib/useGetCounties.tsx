@@ -24,7 +24,7 @@ export const useGetCounties = ({ state_abbr }: CountiesParams) => {
         data: [],
       }
     }
-    return data.counties
+    return data.data
   }
 
   return useQuery(['counties', state_abbr], fetchCounties, {

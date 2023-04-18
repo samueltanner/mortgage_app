@@ -1,19 +1,7 @@
 export interface County {
-  id: string
-  state_abr: string
-  state: string
-  county_code: number
-  county: string
-  median: number
-  gse_1: number
-  gse_2: number
-  gse_3: number
-  gse_4: number
-  limit_type: string
-  fha_1: number
-  fha_2: number
-  fha_3: number
-  fha_4: number
+  id: number
+  county_name: string
+  state_abbr: string
 }
 
 export interface State {
@@ -25,4 +13,21 @@ export interface CustomProps {
   customMortgageInsurance: boolean
   customHomeOwnersInsurance: boolean
   customPropertyTax: boolean
+}
+
+export interface LoanMaximums {
+  fha_max: number
+  conventional_max: number
+}
+
+export interface OptimizedLoan {
+  primaryLoanAmount: number
+  secondaryLoanAmount: number | null
+  downPayment: number
+  equity: number
+}
+
+export interface OptimizedLoans {
+  fha: OptimizedLoan
+  conventional: OptimizedLoan
 }
