@@ -2,7 +2,7 @@ import { useGetLoanLimits } from './useGetLoanLimits'
 import { getPercent } from './helpers'
 
 interface useGetOptimizedLoansProps {
-  listPrice: number
+  listPrice: number | undefined
   customDownPayment?: number | null
   state_abbr: string
   county_name: string
@@ -26,6 +26,8 @@ export const useGetOptimizedLoans = ({
     county_name: county_name,
   })
 
+  console.log(state_abbr, county_name, property_type, listPrice, loanLimits)
+
   const minPercentDown: {
     [key: string]: number
   } = {
@@ -36,7 +38,14 @@ export const useGetOptimizedLoans = ({
   }
 
   const getDownPayment = (loanType: string) => {
-    if (!loanLimits || !property_type) return customDownPayment || 0
+    if (
+      !loanLimits ||
+      !property_type ||
+      !state_abbr ||
+      !county_name ||
+      !listPrice
+    )
+      return customDownPayment || 0
     let downPayment = 0
 
     if (loanType === 'piggy_back') {
@@ -58,12 +67,12 @@ export const useGetOptimizedLoans = ({
     }
 
     let minDown = listPrice * minPercentDown[loanType]
-    let loanMax = loanLimits[loanType][property_type]
+    const loanCategory = loanType === 'fha' ? 'fha' : 'conventional'
+    const loanMax = loanLimits[loanCategory][property_type]
     if (listPrice - loanMax > minDown) {
       minDown = listPrice - loanMax
       downPayment = minDown
     }
-    console.log('second', customDownPayment)
     downPayment =
       customDownPayment && customDownPayment >= minDown
         ? customDownPayment
@@ -73,11 +82,18 @@ export const useGetOptimizedLoans = ({
   }
 
   const getPrimaryLoanAmount = (loanType: string) => {
-    if (!loanLimits || !property_type) return 0
+    if (
+      !loanLimits ||
+      !property_type ||
+      !state_abbr ||
+      !county_name ||
+      !listPrice
+    )
+      return 0
     const downPayment = getDownPayment(loanType) || 0
     const loanCategory = loanType === 'fha' ? 'fha' : 'conventional'
-    const maxPrimaryLoanAmount = listPrice - downPayment
     const loanMax = loanLimits[loanCategory][property_type]
+    const maxPrimaryLoanAmount = listPrice - downPayment
     const primaryLoanAmount =
       maxPrimaryLoanAmount > loanMax ? loanMax : maxPrimaryLoanAmount
     return Math.floor(
@@ -86,7 +102,14 @@ export const useGetOptimizedLoans = ({
   }
 
   const getSecondaryLoanAmount = (loanType: string) => {
-    if (!loanLimits || !listPrice) return
+    if (
+      !loanLimits ||
+      !property_type ||
+      !state_abbr ||
+      !county_name ||
+      !listPrice
+    )
+      return
     if (loanType !== 'piggy_back') return 0
     const primaryLoanAmount = getPrimaryLoanAmount('piggy_back') || 0
     const downPayment = getDownPayment('piggy_back') || 0

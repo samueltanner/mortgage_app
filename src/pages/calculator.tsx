@@ -14,11 +14,11 @@ import { useGetOptimizedLoans } from '@/lib/useGetOptimizedLoans'
 
 const Calculator = ({}) => {
   const [propertyExpanded, setPropertyExpanded] = useState<boolean>(true)
-  const [listingState, setListingState] = useState<string>('OR')
-  const [listingCounty, setListingCounty] = useState<string>('DESCHUTES COUNTY')
+  const [listingState, setListingState] = useState<string>('')
+  const [listingCounty, setListingCounty] = useState<string>('')
   const [listingURL, setListingURL] = useState<string>('')
   const [propertyType, setPropertyType] = useState<string>('')
-  const [listPrice, setListPrice] = useState<number>(1000000)
+  const [listPrice, setListPrice] = useState<number>()
   const [loanMaximums, setLoanMaximums] = useState<LoanMaximums>()
   const [downPayment, setDownPayment] = useState<number>(0)
   const [optimizedLoans, setOptimizedLoans] = useState<OptimizedLoans>()
@@ -123,15 +123,13 @@ const Calculator = ({}) => {
   }, [propertyData, propertyType, setLoanMaximums, loanLimits])
 
   useEffect(() => {
+    setListingCounty('')
+  }, [listingState])
+
+  useEffect(() => {
+    // if (!listingState || !listingCounty) return
     setOptimizedLoans(optimizedLoansObj)
-  }, [
-    loanMaximums,
-    listPrice,
-    downPayment,
-    propertyType,
-    listingState,
-    listingCounty,
-  ])
+  }, [loanMaximums, listPrice, downPayment, propertyType])
 
   useEffect(() => {
     getLoanMaximums()

@@ -26,6 +26,7 @@ export const LoanInfoCard = ({
     <div className="flex flex-col gap-2">
       <h1 className="text-xl font-bold">Loan Options</h1>
       <span className="flex w-[40%] flex-col">
+        <button>Optimize Loans</button>
         <label htmlFor="down-payment">Down Payment</label>
         <input
           id="down-payment"
