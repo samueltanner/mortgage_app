@@ -1,39 +1,43 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { BiSliderAlt } from 'react-icons/bi'
 import { LoanMaximums, OptimizedLoans } from '@/lib/types'
 
 interface LoanInfoCardProps {
-  loanMaximums: LoanMaximums | undefined
+  downPayment: number
   optimizedLoans: OptimizedLoans | undefined
+  setDownPayment: (downPayment: number) => void
+  loanMaximums: LoanMaximums | undefined
 }
 
 export const LoanInfoCard = ({
-  loanMaximums,
+  downPayment,
   optimizedLoans,
+  setDownPayment,
+  loanMaximums,
 }: LoanInfoCardProps) => {
   const [loanSettingsExpanded, setLoanSettingsExpanded] =
     useState<boolean>(false)
 
+  const downPaymentInputRef = useRef<HTMLInputElement>(null)
+
+  console.log(optimizedLoans)
+
   return (
-    <div>
-      <h1 className="text-xl font-bold">Loan Info</h1>
-      <span className="flex gap-2">
-        <span className="flex flex-col">
-          <span className="flex w-fit items-end gap-4">
-            <button
-              className={`my-2 flex h-10 w-10 flex-none items-center justify-center rounded-md border-2 ${
-                loanSettingsExpanded
-                  ? 'border-teal-400 bg-teal-400 hover:bg-teal-200 '
-                  : 'border-slate-900 bg-gray-300 hover:bg-gray-400'
-              }   duration-300 ease-in-out `}
-              onClick={() => {
-                setLoanSettingsExpanded(!loanSettingsExpanded)
-              }}
-            >
-              <BiSliderAlt className="h-6 w-6" />
-            </button>
-          </span>
-        </span>
+    <div className="flex flex-col gap-2">
+      <h1 className="text-xl font-bold">Loan Options</h1>
+      <span className="flex w-[40%] flex-col">
+        <label htmlFor="down-payment">Down Payment</label>
+        <input
+          id="down-payment"
+          type="number"
+          className="rounded-md border-2 border-slate-900 bg-gray-50 px-2"
+          ref={downPaymentInputRef}
+          value={downPayment || ''}
+          onChange={(e) => {
+            setDownPayment(Number(e.target.value))
+          }}
+          placeholder="Defaults To Minimums"
+        />
       </span>
       <span className="flex w-full items-center justify-center">
         <hr className="my-2 flex w-full border-slate-900" />
@@ -57,6 +61,30 @@ export const LoanInfoCard = ({
             <p>Down Payment: ${optimizedLoans?.fha?.downPayment}</p>
             <p>Equity: {optimizedLoans?.fha?.equity}%</p>
           </span>
+
+          <span className="flex w-fit flex-col">
+            <h2 className="font-bold">Piggy Back Mortgage</h2>
+            <p>Primary Loan Maximum: ${loanMaximums?.conventional_max}</p>
+            <p>
+              Primary Loan Amount: $
+              {optimizedLoans?.piggy_back?.primaryLoanAmount}
+            </p>
+            <p>
+              Secondary Loan Amount: $
+              {optimizedLoans?.piggy_back?.secondaryLoanAmount}
+            </p>
+
+            <p>Down Payment: ${optimizedLoans?.piggy_back?.downPayment}</p>
+            <p>Equity: {optimizedLoans?.piggy_back?.equity}%</p>
+          </span>
+
+          {/* <span className="flex w-fit flex-col">
+            <h2 className="font-bold">Jumbo Mortgage</h2>
+            <p>Loan Maximum: ${loanMaximums?.fha_max}</p>
+            <p>Loan Amount: ${optimizedLoans?.fha?.primaryLoanAmount}</p>
+            <p>Down Payment: ${optimizedLoans?.fha?.downPayment}</p>
+            <p>Equity: {optimizedLoans?.fha?.equity}%</p>
+          </span> */}
         </span>
       </div>
     </div>

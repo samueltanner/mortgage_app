@@ -21,13 +21,15 @@ export interface LoanMaximums {
 }
 
 export interface OptimizedLoan {
-  primaryLoanAmount: number
-  secondaryLoanAmount: number | null
-  downPayment: number
-  equity: number
+  primaryLoanAmount: number | undefined
+  secondaryLoanAmount: number | undefined
+  downPayment: number | undefined
+  equity: number | undefined
 }
 
 export interface OptimizedLoans {
-  fha: OptimizedLoan
-  conventional: OptimizedLoan
+  fha: OptimizedLoan | undefined
+  conventional: OptimizedLoan | undefined
+  piggy_back: OptimizedLoan | undefined
+  jumbo: OptimizedLoan | undefined
 }

@@ -5,21 +5,20 @@ import { useGetPropertyInfo } from '@/lib/useGetPropertyInfo'
 import { useGetCounties } from '@/lib/useGetCounties'
 import { useGetLoanLimits } from '@/lib/useGetLoanLimits'
 import { getPercent } from '@/lib/helpers'
-import {
-  LoanMaximums,
-  OptimizedLoans,
-} from '@/lib/types'
+import { LoanMaximums, OptimizedLoans } from '@/lib/types'
 import { PropertyInfoCard } from '@/components/PropertyInfoCardV2'
 import { LoanInfoCard } from '@/components/LoanInfoCardV2'
 import { MortgageInfoCard } from '@/components/MortgageInfoCard'
+import { IncomeAndExpensesCard } from '@/components/IncomeAndExpensesCard'
+import { useGetOptimizedLoans } from '@/lib/useGetOptimizedLoans'
 
 const Calculator = ({}) => {
   const [propertyExpanded, setPropertyExpanded] = useState<boolean>(true)
-  const [listingState, setListingState] = useState<string>('')
-  const [listingCounty, setListingCounty] = useState<string>('')
+  const [listingState, setListingState] = useState<string>('OR')
+  const [listingCounty, setListingCounty] = useState<string>('DESCHUTES COUNTY')
   const [listingURL, setListingURL] = useState<string>('')
   const [propertyType, setPropertyType] = useState<string>('')
-  const [listPrice, setListPrice] = useState<number>(0)
+  const [listPrice, setListPrice] = useState<number>(1000000)
   const [loanMaximums, setLoanMaximums] = useState<LoanMaximums>()
   const [downPayment, setDownPayment] = useState<number>(0)
   const [optimizedLoans, setOptimizedLoans] = useState<OptimizedLoans>()
@@ -48,6 +47,14 @@ const Calculator = ({}) => {
   } = useGetLoanLimits({
     state_abbr: listingState,
     county_name: listingCounty,
+  })
+
+  const optimizedLoansObj = useGetOptimizedLoans({
+    listPrice: listPrice,
+    customDownPayment: downPayment,
+    state_abbr: listingState,
+    county_name: listingCounty,
+    property_type: propertyType,
   })
 
   const getNumberOfUnits = useCallback(() => {
@@ -116,40 +123,20 @@ const Calculator = ({}) => {
   }, [propertyData, propertyType, setLoanMaximums, loanLimits])
 
   useEffect(() => {
-    if (!propertyData) return
-    setListPrice(propertyData.list_price ?? 0)
-    setListingState(propertyData.address?.state)
-    setListingCounty(propertyData.address?.county.toUpperCase())
-    getNumberOfUnits()
+    setOptimizedLoans(optimizedLoansObj)
+  }, [
+    loanMaximums,
+    listPrice,
+    downPayment,
+    propertyType,
+    listingState,
+    listingCounty,
+  ])
+
+  useEffect(() => {
     getLoanMaximums()
-  }, [propertyData, getLoanMaximums, getNumberOfUnits])
-
-  useEffect(() => {
-    if (!loanLimits) return
-    return getLoanMaximums()
-  }, [loanLimits, getLoanMaximums])
-
-  useEffect(() => {
-    if (!loanMaximums || !listPrice) return
-    const fhaLoanTerms = getOptimizedLoanTerms(
-      loanMaximums.fha_max,
-      listPrice,
-      'fha',
-      downPayment ? downPayment : null,
-    )
-    const conventionalLoanTerms = getOptimizedLoanTerms(
-      loanMaximums.conventional_max,
-      listPrice,
-      'conventional',
-      downPayment ? downPayment : null,
-    )
-    const optimizedLoanObj = {
-      fha: fhaLoanTerms,
-      conventional: conventionalLoanTerms,
-    }
-
-    setOptimizedLoans(optimizedLoanObj)
-  }, [loanMaximums, listPrice, downPayment])
+    // console.log('loanMaximums', loanMaximums)
+  }, [propertyData, listingState, listingCounty])
 
   const handleReset = () => {
     setListingURL('')
@@ -171,35 +158,59 @@ const Calculator = ({}) => {
     } = {
       fha: 0.035,
       conventional: 0.03,
+      piggy_back: 0.1,
     }
 
     const getMinimumDownPayment = () => {
       let minDown = listPrice * minPercentDown[loanType]
-      if (listPrice - loanMax > minDown) minDown = listPrice - loanMax
+      if (listPrice - loanMax > minDown && loanType !== 'piggy_back')
+        minDown = listPrice - loanMax
+      if (loanType === 'piggy_back')
+        minDown = listPrice * minPercentDown.piggy_back
       return minDown
     }
+
     const minDown = Math.floor(getMinimumDownPayment())
 
-    const customDownPossible = customDownPaymentAmount
-      ? customDownPaymentAmount >= minDown
-      : false
+    const customDownPossible = () => {
+      // if (loanType === 'piggy_back') return true
+      return customDownPaymentAmount
+        ? customDownPaymentAmount >= minDown
+        : false
+    }
+
+    const getPrimaryLoanAmount = () => {
+      if (!optimizedLoans) return
+      if (loanType === 'piggy_back') {
+        return loanMax
+      }
+      const primaryLoanAmount = customDownPossible()
+        ? listPrice - customDownPaymentAmount!
+        : listPrice - minDown
+      return primaryLoanAmount
+    }
+
+    const getSecondaryLoanAmount = () => {
+      if (!optimizedLoans) return
+      const { piggy_back } = optimizedLoans
+      if (!piggy_back) return
+      const { downPayment, primaryLoanAmount } = piggy_back
+      if (!downPayment || !primaryLoanAmount) return
+      return (
+        listPrice - primaryLoanAmount - downPayment ||
+        minPercentDown.piggy_back * listPrice
+      )
+    }
 
     return {
-      primaryLoanAmount: customDownPossible
-        ? listPrice - customDownPaymentAmount!
-        : listPrice - minDown,
-      downPayment: (customDownPossible && customDownPaymentAmount) || minDown,
-      secondaryLoanAmount: null,
+      primaryLoanAmount: getPrimaryLoanAmount(),
+      downPayment: (customDownPossible() && customDownPaymentAmount) || minDown,
+      secondaryLoanAmount: getSecondaryLoanAmount(),
       equity: getPercent(
-        (customDownPossible && customDownPaymentAmount) || minDown,
+        (customDownPossible() && customDownPaymentAmount) || minDown,
         listPrice,
       ),
     }
-  }
-
-  const handleCustomDownPayment = (downPayment: number) => {
-    console.log(downPayment)
-    setDownPayment(downPayment)
   }
 
   return (
@@ -225,14 +236,23 @@ const Calculator = ({}) => {
           />
         </CalculatorCard>
 
+        {/* <CalculatorCard>
+          <span className="absolute -top-4 -right-4">
+            <CardOverlayIcon size="small" icon="income" />
+          </span>
+          <IncomeAndExpensesCard />
+        </CalculatorCard> */}
+
         {/* Loan  Info Card */}
         <CalculatorCard>
           <span className="absolute -top-4 -right-4">
             <CardOverlayIcon size="small" icon="loan" />
           </span>
           <LoanInfoCard
-            loanMaximums={loanMaximums}
             optimizedLoans={optimizedLoans}
+            downPayment={downPayment}
+            setDownPayment={setDownPayment}
+            loanMaximums={loanMaximums}
           />
         </CalculatorCard>
 
@@ -241,13 +261,6 @@ const Calculator = ({}) => {
             <CardOverlayIcon size="small" icon="closing" />
           </span>
           <h1 className="text-xl font-bold">Closing Costs & Fees</h1>
-        </CalculatorCard>
-
-        <CalculatorCard>
-          <span className="absolute -top-4 -right-4">
-            <CardOverlayIcon size="small" icon="income" />
-          </span>
-          <h1 className="text-xl font-bold">Income & Expenses</h1>
         </CalculatorCard>
       </div>
       <div className=" flex flex-col">
