@@ -21,16 +21,35 @@ export interface LoanMaximums {
 }
 
 export interface OptimizedLoan {
-  loanLimit: number | undefined
-  primaryLoanAmount: number | undefined
-  secondaryLoanAmount: number | undefined
-  downPayment: number | undefined
-  equity: number | undefined
+  downPayment: number | undefined,
+  minimumDownPayment: number | undefined,
+  listPrice: number | undefined,
+  primaryLoanAmount: number | undefined,
+  secondaryLoanAmount: number | undefined,
+  loanType: string | undefined,
+  propertyType: string | undefined,
+  loanLimit: number | undefined,
+  budgetTest:number | undefined,
+  equityPercentage: number | undefined
 }
 
 export interface OptimizedLoans {
-  fha: OptimizedLoan | undefined
-  conventional: OptimizedLoan | undefined
-  piggy_back: OptimizedLoan | undefined
-  jumbo: OptimizedLoan | undefined
+  fha: OptimizedLoan
+  conventional: OptimizedLoan
+  piggy_back: OptimizedLoan
+  jumbo: OptimizedLoan
+}
+
+export interface LoanLimitsObject {
+  county_name: string;
+  conventional: LoanLimit;
+  fha: LoanLimit;
+  [key: string]: LoanLimit | string;
+}
+export interface LoanLimit {
+  [key: string]: number;
+  one_unit: number,
+  two_unit: number,
+  three_unit: number,
+  four_unit: number
 }

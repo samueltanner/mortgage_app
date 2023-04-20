@@ -5,12 +5,12 @@ import { useGetPropertyInfo } from '@/lib/useGetPropertyInfo'
 import { useGetCounties } from '@/lib/useGetCounties'
 import { useGetLoanLimits } from '@/lib/useGetLoanLimits'
 import { getPercent } from '@/lib/helpers'
-import { LoanMaximums, OptimizedLoans } from '@/lib/types'
+import { LoanMaximums, OptimizedLoan, OptimizedLoans } from '@/lib/types'
 import { PropertyInfoCard } from '@/components/PropertyInfoCardV2'
 import { LoanInfoCard } from '@/components/LoanInfoCardV2'
 import { MortgageInfoCard } from '@/components/MortgageInfoCard'
 import { IncomeAndExpensesCard } from '@/components/IncomeAndExpensesCard'
-import { useGetOptimizedLoans } from '@/lib/useGetOptimizedLoans'
+import { getOptimizedLoan } from '@/lib/optimizeLoanHelper'
 
 const Calculator = ({}) => {
   const [propertyExpanded, setPropertyExpanded] = useState<boolean>(true)
@@ -20,7 +20,7 @@ const Calculator = ({}) => {
   const [propertyType, setPropertyType] = useState<string>('')
   const [listPrice, setListPrice] = useState<number>(0)
   const [loanMaximums, setLoanMaximums] = useState<LoanMaximums>()
-  const [downPayment, setDownPayment] = useState<number>(0)
+  const [downPayment, setDownPayment] = useState<number>()
   const [optimizedLoans, setOptimizedLoans] = useState<OptimizedLoans>()
 
   const {
@@ -47,14 +47,6 @@ const Calculator = ({}) => {
   } = useGetLoanLimits({
     state_abbr: listingState,
     county_name: listingCounty,
-  })
-
-  const optimizedLoansObj = useGetOptimizedLoans({
-    listPrice: listPrice,
-    customDownPayment: downPayment,
-    state_abbr: listingState,
-    county_name: listingCounty,
-    property_type: propertyType,
   })
 
   const getNumberOfUnits = useCallback(() => {
@@ -88,29 +80,70 @@ const Calculator = ({}) => {
   }, [propertyData])
 
   useEffect(() => {
-    console.log(propertyData)
     if (propertyData) {
       getNumberOfUnits()
       setListingCounty(propertyData.address.county)
       setListingState(propertyData.address.state)
       setListPrice(propertyData.list_price)
     }
-  }, [propertyData])
+  }, [propertyData, propertySuccess, propertyLoading])
 
   useEffect(() => {
-    setListingCounty('')
-    setPropertyType('')
-  }, [listingState])
+    if (!loanLimits || !listPrice || !propertyType) return
 
-  useEffect(() => {
-    setOptimizedLoans(optimizedLoansObj)
-  }, [loanMaximums, listPrice, downPayment, propertyType])
+    const optimizedFHA: OptimizedLoan = getOptimizedLoan({
+      listPrice,
+      customDownPayment: downPayment,
+      loanLimits,
+      propertyType,
+      loanType: 'fha',
+    })
+    const optimizedConventional = getOptimizedLoan({
+      listPrice,
+      customDownPayment: downPayment,
+      loanLimits,
+      propertyType,
+      loanType: 'conventional',
+    })
+    const optimizedPiggyback = getOptimizedLoan({
+      listPrice,
+      customDownPayment: downPayment,
+      loanLimits,
+      propertyType,
+      loanType: 'piggyback',
+    })
+    const optimizedJumbo = getOptimizedLoan({
+      listPrice,
+      customDownPayment: downPayment,
+      loanLimits,
+      propertyType,
+      loanType: 'jumbo',
+    })
+
+    const optimizedLoans = {
+      fha: optimizedFHA,
+      conventional: optimizedConventional,
+      piggy_back: optimizedPiggyback,
+      jumbo: optimizedJumbo,
+    }
+
+    setOptimizedLoans(optimizedLoans)
+  }, [loanLimits, downPayment, listPrice])
+
+  console.log('optimizedLoans', optimizedLoans)
 
   return (
     <div className="grid h-screen w-screen grid-cols-2 gap-8 overflow-y-scroll bg-gray-50 p-10 text-slate-900">
       <div className="flex w-full flex-col gap-8">
         {/* Property Info Card */}
         <CalculatorCard onClick={() => {}}>
+          <button
+            onClick={() => {
+              // getOptLoan()
+            }}
+          >
+            Test Optimized Loan
+          </button>
           <span className="absolute -top-4 -right-4">
             <CardOverlayIcon src={''} alt="sam" size="small" icon="home" />
           </span>
@@ -142,10 +175,9 @@ const Calculator = ({}) => {
             <CardOverlayIcon size="small" icon="loan" />
           </span>
           <LoanInfoCard
-            optimizedLoans={optimizedLoans}
+            loanLimits={loanLimits}
+            listPrice={listPrice}
             downPayment={downPayment}
-            setDownPayment={setDownPayment}
-            loanMaximums={loanMaximums}
           />
         </CalculatorCard>
 

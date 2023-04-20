@@ -36,6 +36,14 @@ export const PropertyInfoCard = ({
     setListingURL(urlInputRef.current.value)
   }
 
+  const handleListingStateChange = (
+    e: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    // setListingCounty('')
+    // setPropertyType('')
+    setListingState(e.target.value)
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <h1 className="text-xl font-bold">Property Info</h1>
@@ -88,7 +96,7 @@ export const PropertyInfoCard = ({
                 id="state-select"
                 className="rounded-md border-2 border-slate-900 bg-gray-50 px-1"
                 onChange={(e) => {
-                  setListingState(e.target.value)
+                  handleListingStateChange(e)
                 }}
                 value={listingState}
               >

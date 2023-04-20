@@ -1,12 +1,20 @@
-import { useState, useRef } from 'react'
-import { BiSliderAlt } from 'react-icons/bi'
+import { useState, useRef, useEffect } from 'react'
+import { BiCalculator, BiReset, BiSliderAlt } from 'react-icons/bi'
 import { LoanMaximums, OptimizedLoans } from '@/lib/types'
+import { getOptimizedLoan } from '@/lib/optimizeLoanHelper'
 
 interface LoanInfoCardProps {
-  downPayment: number
+  downPayment: number | undefined
   optimizedLoans: OptimizedLoans | undefined
   setDownPayment: (downPayment: number) => void
   loanMaximums: LoanMaximums | undefined
+}
+
+interface LoanOptionsObj {
+  conventional: boolean
+  fha: boolean
+  piggy_back: boolean
+  jumbo: boolean
 }
 
 export const LoanInfoCard = ({
@@ -15,34 +23,112 @@ export const LoanInfoCard = ({
   setDownPayment,
   loanMaximums,
 }: LoanInfoCardProps) => {
-  const [loanSettingsExpanded, setLoanSettingsExpanded] =
-    useState<boolean>(false)
+  const [tempDownPayment, setTempDownPayment] = useState<number | undefined>()
+  const [viableLoanOptions, setViableLoanOptions] = useState<LoanOptionsObj>({
+    conventional: true,
+    fha: true,
+    piggy_back: true,
+    jumbo: true,
+  })
 
-  const downPaymentInputRef = useRef<HTMLInputElement>(null)
+  const handleCustomDownPayment = () => {
+    setDownPayment(tempDownPayment || 0)
+    const viableLoanOptions = getViableLoanOptionsByDownPayment(
+      tempDownPayment || 0,
+    )
+    setViableLoanOptions(viableLoanOptions)
+  }
+
+  const handleResetDownPayment = () => {
+    setDownPayment(0)
+    setTempDownPayment(undefined)
+    const viableLoanOptions = getViableLoanOptionsByDownPayment(0)
+    setViableLoanOptions(viableLoanOptions)
+  }
+
+  const getViableLoanOptionsByDownPayment = (downPayment: number) => {
+    if (!downPayment || !optimizedLoans)
+      return {
+        conventional: true,
+        fha: true,
+        piggy_back: true,
+        jumbo: true,
+      }
+    downPayment >= optimizedLoans?.conventional?.downPayment
+      ? (viableLoanOptions.conventional = true)
+      : (viableLoanOptions.conventional = false)
+
+    downPayment >= optimizedLoans?.fha?.downPayment
+      ? (viableLoanOptions.fha = true)
+      : (viableLoanOptions.fha = false)
+
+    downPayment >= optimizedLoans?.piggy_back?.downPayment
+      ? (viableLoanOptions.piggy_back = true)
+      : (viableLoanOptions.piggy_back = false)
+
+    downPayment >= optimizedLoans?.jumbo?.downPayment
+      ? (viableLoanOptions.jumbo = true)
+      : (viableLoanOptions.jumbo = false)
+
+    return viableLoanOptions
+  }
+
+  useEffect(() => {
+    if (!downPayment) return
+  }, [downPayment])
 
   return (
     <div className="flex flex-col gap-2">
+      <button
+        onClick={() => {
+          console.log(downPayment, optimizedLoans)
+        }}
+      >
+        test
+      </button>
       <h1 className="text-xl font-bold">Loan Options</h1>
-      <span className="flex w-[40%] flex-col">
-        <label htmlFor="down-payment">Down Payment</label>
-        <input
-          id="down-payment"
-          type="number"
-          className="rounded-md border-2 border-slate-900 bg-gray-50 px-2"
-          ref={downPaymentInputRef}
-          value={downPayment || ''}
-          onChange={(e) => {
-            setDownPayment(Number(e.target.value))
+      <span className="flex flex-nowrap items-end gap-4">
+        <span className="flex w-[40%] flex-col">
+          <label htmlFor="down-payment">Down Payment</label>
+          <input
+            id="down-payment"
+            type="number"
+            className="rounded-md border-2 border-slate-900 bg-gray-50 px-2"
+            value={tempDownPayment || ''}
+            onChange={(e) => {
+              setTempDownPayment(Number(e.target.value))
+            }}
+            placeholder="Defaults To Minimums"
+          />
+        </span>
+        <button
+          className="flex h-10 w-10 flex-none items-center justify-center rounded-md border-2 border-teal-400 bg-teal-400 duration-300 ease-in-out hover:bg-teal-200 "
+          onClick={() => {
+            handleCustomDownPayment()
           }}
-          placeholder="Defaults To Minimums"
-        />
+        >
+          <BiCalculator className="h-6 w-6" />
+        </button>
+        <button
+          className="flex h-10 w-10 flex-none items-center justify-center rounded-md border-2 border-teal-400 bg-teal-400 duration-300 ease-in-out hover:bg-teal-200 "
+          onClick={() => {
+            handleResetDownPayment()
+          }}
+        >
+          <BiReset className="h-6 w-6" />
+        </button>
       </span>
+
       <span className="flex w-full items-center justify-center">
         <hr className="my-2 flex w-full border-slate-900" />
       </span>
       <div className="flex flex-col gap-2">
         <span className="flex flex-wrap gap-4">
-          <span className="flex w-fit flex-col">
+          <span
+            className={`${
+              viableLoanOptions.conventional ? 'text-black' : 'text-gray-300'
+            } flex w-fit flex-col`}
+          >
             <h2 className="font-bold">Conventional Mortgage</h2>
             <p>Loan Maximum: ${optimizedLoans?.conventional?.loanLimit}</p>
             <p>
@@ -52,7 +138,11 @@ export const LoanInfoCard = ({
             <p>Equity: {optimizedLoans?.conventional?.equity}%</p>
           </span>
 
-          <span className="flex w-fit flex-col">
+          <span
+            className={`${
+              viableLoanOptions.fha ? 'text-black' : 'text-gray-300'
+            } flex w-fit flex-col`}
+          >
             <h2 className="font-bold">FHA Mortgage</h2>
             <p>Loan Maximum: ${optimizedLoans?.fha?.loanLimit}</p>
             <p>Loan Amount: ${optimizedLoans?.fha?.primaryLoanAmount}</p>
@@ -60,7 +150,11 @@ export const LoanInfoCard = ({
             <p>Equity: {optimizedLoans?.fha?.equity}%</p>
           </span>
 
-          <span className="flex w-fit flex-col">
+          <span
+            className={`${
+              viableLoanOptions.piggy_back ? 'text-black' : 'text-gray-300'
+            } flex w-fit flex-col`}
+          >
             <h2 className="font-bold">Piggy Back Mortgage</h2>
             <p>
               Primary Loan Maximum: ${optimizedLoans?.piggy_back?.loanLimit}
@@ -78,7 +172,11 @@ export const LoanInfoCard = ({
             <p>Equity: {optimizedLoans?.piggy_back?.equity}%</p>
           </span>
 
-          <span className="flex w-fit flex-col">
+          <span
+            className={`${
+              viableLoanOptions.jumbo ? 'text-black' : 'text-gray-300'
+            } flex w-fit flex-col`}
+          >
             <h2 className="font-bold">Jumbo Mortgage</h2>
             <p>
               Primary Loan Amount: ${optimizedLoans?.jumbo?.primaryLoanAmount}
