@@ -4,7 +4,12 @@ import { useState, useEffect, useCallback } from 'react'
 import { useGetPropertyInfo } from '@/lib/useGetPropertyInfo'
 import { useGetCounties } from '@/lib/useGetCounties'
 import { useGetLoanLimits } from '@/lib/useGetLoanLimits'
-import { LoanMaximums, OptimizedLoan, OptimizedLoans } from '@/lib/types'
+import {
+  InterestRates,
+  LoanMaximums,
+  OptimizedLoan,
+  OptimizedLoans,
+} from '@/lib/types'
 import { PropertyInfoCard } from '@/components/PropertyInfoCardV2'
 import { LoanInfoCard } from '@/components/LoanInfoCardV2'
 import { MortgageInfoCard } from '@/components/MortgageInfoCard'
@@ -19,9 +24,15 @@ const Calculator = ({}) => {
   const [listingURL, setListingURL] = useState<string>('')
   const [propertyType, setPropertyType] = useState<string>('')
   const [listPrice, setListPrice] = useState<number>(0)
-  const [loanMaximums, setLoanMaximums] = useState<LoanMaximums>()
   const [downPayment, setDownPayment] = useState<number>()
   const [optimizedLoans, setOptimizedLoans] = useState<OptimizedLoans>()
+  const [interestRates, setInterestRates] = useState<InterestRates>({
+    conventional: undefined,
+    fha: undefined,
+    jumbo: undefined,
+    piggy_back: undefined,
+    va: undefined,
+  })
 
   const {
     data: propertyData,
@@ -55,6 +66,10 @@ const Calculator = ({}) => {
     isLoading: todaysInterestRatesLoading,
     isSuccess: todaysInterestRatesSuccess,
   } = useTodaysInterestRates()
+
+  useEffect(() => {
+    if (todaysInterestRates) setInterestRates(todaysInterestRates)
+  }, [todaysInterestRates])
 
   const getNumberOfUnits = useCallback(() => {
     if (!propertyData || !propertyData.property_type) return
@@ -168,6 +183,7 @@ const Calculator = ({}) => {
           <LoanInfoCard
             optimizedLoans={optimizedLoans}
             setDownPayment={setDownPayment}
+            interestRates={interestRates}
           />
         </CalculatorCard>
 

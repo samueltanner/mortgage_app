@@ -67,6 +67,7 @@ export const getOptimizedLoan = ({
 
   const getPrimaryLoanAmount = () => {
     const downPayment = getDownPayment()
+    if (loanType === 'jumbo') return listPrice - downPayment
     const loanMax = loanLimit
     const maxPrimaryLoanAmount = listPrice - downPayment
     const primaryLoanAmount =
@@ -102,6 +103,7 @@ export const getOptimizedLoan = ({
 
   const getLoanViability = () => {
     if((loanType === 'jumbo' || loanType === 'piggy_back') && listPrice < loanLimit) return false
+    if (loanType === 'piggy_back' && secondaryLoanAmount <= 0) return false
     if (budgetTest !== 0) return false
     if (!customDownPayment) return true
     return customDownPayment < minimumDownPayment ? false : true

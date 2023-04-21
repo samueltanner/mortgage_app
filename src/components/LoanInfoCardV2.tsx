@@ -1,16 +1,17 @@
 import { useState, useRef, useEffect } from 'react'
 import { BiCalculator, BiReset, BiSliderAlt } from 'react-icons/bi'
-import { LoanMaximums, OptimizedLoans } from '@/lib/types'
-import { getOptimizedLoan } from '@/lib/optimizeLoanHelper'
+import { OptimizedLoans, InterestRates } from '@/lib/types'
 
 interface LoanInfoCardProps {
   optimizedLoans: OptimizedLoans | undefined
   setDownPayment: (downPayment: number) => void
+  interestRates: InterestRates
 }
 
 export const LoanInfoCard = ({
   optimizedLoans,
   setDownPayment,
+  interestRates,
 }: LoanInfoCardProps) => {
   const [tempDownPayment, setTempDownPayment] = useState<number | undefined>()
 
@@ -73,6 +74,7 @@ export const LoanInfoCard = ({
             } flex w-fit flex-col`}
           >
             <h2 className="font-bold">Conventional Mortgage</h2>
+            <p>Interest Rate: {interestRates?.conventional}%</p>
             <p>Loan Maximum: ${optimizedLoans?.conventional?.loanLimit}</p>
             <p>
               Loan Amount: ${optimizedLoans?.conventional?.primaryLoanAmount}
@@ -87,6 +89,7 @@ export const LoanInfoCard = ({
             } flex w-fit flex-col`}
           >
             <h2 className="font-bold">FHA Mortgage</h2>
+            <p>Interest Rate: {interestRates?.fha}%</p>
             <p>Loan Maximum: ${optimizedLoans?.fha?.loanLimit}</p>
             <p>Loan Amount: ${optimizedLoans?.fha?.primaryLoanAmount}</p>
             <p>Down Payment: ${optimizedLoans?.fha?.downPayment}</p>
@@ -101,6 +104,8 @@ export const LoanInfoCard = ({
             } flex w-fit flex-col`}
           >
             <h2 className="font-bold">Piggy Back Mortgage</h2>
+            <p>Interest Rate: {interestRates?.conventional}%</p>
+            <p>Secondary Interest Rate: {interestRates?.piggy_back}%</p>
             <p>
               Primary Loan Maximum: ${optimizedLoans?.piggy_back?.loanLimit}
             </p>
@@ -123,6 +128,7 @@ export const LoanInfoCard = ({
             } flex w-fit flex-col`}
           >
             <h2 className="font-bold">Jumbo Mortgage</h2>
+            <p>Interest Rate: {interestRates?.jumbo}%</p>
             <p>
               Primary Loan Amount: ${optimizedLoans?.jumbo?.primaryLoanAmount}
             </p>
