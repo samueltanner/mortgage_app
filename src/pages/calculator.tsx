@@ -153,25 +153,22 @@ const Calculator = ({}) => {
           />
         </CalculatorCard>
 
-        {/* <CalculatorCard>
-          <span className="absolute -top-4 -right-4">
-            <CardOverlayIcon size="small" icon="income" />
-          </span>
-          <IncomeAndExpensesCard />
-        </CalculatorCard> */}
-
         {/* Loan  Info Card */}
         <CalculatorCard>
           <span className="absolute -top-4 -right-4">
             <CardOverlayIcon size="small" icon="loan" />
           </span>
           <LoanInfoCard
-            loanLimits={loanLimits}
-            listPrice={listPrice}
-            downPayment={downPayment}
             optimizedLoans={optimizedLoans}
             setDownPayment={setDownPayment}
           />
+        </CalculatorCard>
+
+        <CalculatorCard>
+          <span className="absolute -top-4 -right-4">
+            <CardOverlayIcon size="small" icon="income" />
+          </span>
+          <IncomeAndExpensesCard />
         </CalculatorCard>
 
         <CalculatorCard>

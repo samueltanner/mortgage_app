@@ -4,17 +4,13 @@ import { LoanMaximums, OptimizedLoans } from '@/lib/types'
 import { getOptimizedLoan } from '@/lib/optimizeLoanHelper'
 
 interface LoanInfoCardProps {
-  downPayment: number | undefined
   optimizedLoans: OptimizedLoans | undefined
   setDownPayment: (downPayment: number) => void
-  loanMaximums: LoanMaximums | undefined
 }
 
 export const LoanInfoCard = ({
-  downPayment,
   optimizedLoans,
   setDownPayment,
-  loanMaximums,
 }: LoanInfoCardProps) => {
   const [tempDownPayment, setTempDownPayment] = useState<number | undefined>()
 
@@ -22,6 +18,11 @@ export const LoanInfoCard = ({
     if (tempDownPayment) {
       setDownPayment(tempDownPayment)
     }
+  }
+
+  const handleResetDownPayment = () => {
+    setDownPayment(0)
+    setTempDownPayment(undefined)
   }
 
   return (
