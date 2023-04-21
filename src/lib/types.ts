@@ -54,3 +54,12 @@ export interface LoanLimit {
   three_unit: number,
   four_unit: number
 }
+
+interface InterestRates {
+  [key: string]: number
+  conventional: number
+  fha: number
+  jumbo: number
+  piggy_back: number
+  va: number
+}

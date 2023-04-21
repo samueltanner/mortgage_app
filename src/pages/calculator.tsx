@@ -4,13 +4,13 @@ import { useState, useEffect, useCallback } from 'react'
 import { useGetPropertyInfo } from '@/lib/useGetPropertyInfo'
 import { useGetCounties } from '@/lib/useGetCounties'
 import { useGetLoanLimits } from '@/lib/useGetLoanLimits'
-import { getPercent } from '@/lib/helpers'
 import { LoanMaximums, OptimizedLoan, OptimizedLoans } from '@/lib/types'
 import { PropertyInfoCard } from '@/components/PropertyInfoCardV2'
 import { LoanInfoCard } from '@/components/LoanInfoCardV2'
 import { MortgageInfoCard } from '@/components/MortgageInfoCard'
 import { IncomeAndExpensesCard } from '@/components/IncomeAndExpensesCard'
 import { getOptimizedLoan } from '@/lib/optimizeLoanHelper'
+import { useTodaysInterestRates } from '@/lib/useTodaysInterestRates'
 
 const Calculator = ({}) => {
   const [propertyExpanded, setPropertyExpanded] = useState<boolean>(true)
@@ -48,6 +48,13 @@ const Calculator = ({}) => {
     state_abbr: listingState,
     county_name: listingCounty,
   })
+
+  const {
+    data: todaysInterestRates,
+    error: todaysInterestRatesError,
+    isLoading: todaysInterestRatesLoading,
+    isSuccess: todaysInterestRatesSuccess,
+  } = useTodaysInterestRates()
 
   const getNumberOfUnits = useCallback(() => {
     if (!propertyData || !propertyData.property_type) return
@@ -179,15 +186,17 @@ const Calculator = ({}) => {
         </CalculatorCard>
       </div>
       <div className=" flex flex-col">
-        <CalculatorCard>
-          <MortgageInfoCard
-            propertyData={propertyData}
-            listPrice={listPrice}
-            listingState={listingState}
-            listingCounty={listingCounty}
-            propertyType={propertyType}
-          />
-        </CalculatorCard>
+        <div className="sticky top-0">
+          <CalculatorCard>
+            <MortgageInfoCard
+              propertyData={propertyData}
+              listPrice={listPrice}
+              listingState={listingState}
+              listingCounty={listingCounty}
+              propertyType={propertyType}
+            />
+          </CalculatorCard>
+        </div>
       </div>
     </div>
   )
