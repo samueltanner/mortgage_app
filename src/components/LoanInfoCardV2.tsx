@@ -75,11 +75,12 @@ export const LoanInfoCard = ({
           >
             <h2 className="font-bold">Conventional Mortgage</h2>
             <p>Interest Rate: {interestRates?.conventional}%</p>
+            <p>Down Payment: ${optimizedLoans?.conventional?.downPayment}</p>
+            <p>Monthly P&I: ${optimizedLoans?.conventional?.primaryLoanPI}</p>
             <p>Loan Maximum: ${optimizedLoans?.conventional?.loanLimit}</p>
             <p>
               Loan Amount: ${optimizedLoans?.conventional?.primaryLoanAmount}
             </p>
-            <p>Down Payment: ${optimizedLoans?.conventional?.downPayment}</p>
             <p>Equity: {optimizedLoans?.conventional?.equityPercentage}%</p>
           </span>
 
@@ -90,9 +91,10 @@ export const LoanInfoCard = ({
           >
             <h2 className="font-bold">FHA Mortgage</h2>
             <p>Interest Rate: {interestRates?.fha}%</p>
+            <p>Down Payment: ${optimizedLoans?.fha?.downPayment}</p>
+            <p>Monthly P&I: ${optimizedLoans?.fha?.primaryLoanPI}</p>
             <p>Loan Maximum: ${optimizedLoans?.fha?.loanLimit}</p>
             <p>Loan Amount: ${optimizedLoans?.fha?.primaryLoanAmount}</p>
-            <p>Down Payment: ${optimizedLoans?.fha?.downPayment}</p>
             <p>Equity: {optimizedLoans?.fha?.equityPercentage}%</p>
           </span>
 
@@ -105,6 +107,19 @@ export const LoanInfoCard = ({
           >
             <h2 className="font-bold">Piggy Back Mortgage</h2>
             <p>Interest Rate: {interestRates?.conventional}%</p>
+            <p>Down Payment: ${optimizedLoans?.piggy_back?.downPayment}</p>
+            <p>
+              Monthly P&I (Primary Loan): $
+              {optimizedLoans?.piggy_back?.primaryLoanPI}
+            </p>
+            <p>
+              Monthly P&I (Secondary Loan): $
+              {optimizedLoans?.piggy_back?.secondaryLoanPI}
+            </p>
+            <p>
+              Monthly Interest Only (Secondary Loan): $
+              {optimizedLoans?.piggy_back?.secondaryLoanIO}
+            </p>
             <p>Secondary Interest Rate: {interestRates?.piggy_back}%</p>
             <p>
               Primary Loan Maximum: ${optimizedLoans?.piggy_back?.loanLimit}
@@ -118,7 +133,6 @@ export const LoanInfoCard = ({
               {optimizedLoans?.piggy_back?.secondaryLoanAmount}
             </p>
 
-            <p>Down Payment: ${optimizedLoans?.piggy_back?.downPayment}</p>
             <p>Equity: {optimizedLoans?.piggy_back?.equityPercentage}%</p>
           </span>
 
@@ -129,10 +143,10 @@ export const LoanInfoCard = ({
           >
             <h2 className="font-bold">Jumbo Mortgage</h2>
             <p>Interest Rate: {interestRates?.jumbo}%</p>
+            <p>Down Payment: ${optimizedLoans?.jumbo?.downPayment}</p>
             <p>
               Primary Loan Amount: ${optimizedLoans?.jumbo?.primaryLoanAmount}
             </p>
-            <p>Down Payment: ${optimizedLoans?.jumbo?.downPayment}</p>
             <p>Equity: {optimizedLoans?.jumbo?.equityPercentage}%</p>
           </span>
 

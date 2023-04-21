@@ -1,5 +1,5 @@
 import { LoanLimitsObject, LoanLimit } from "./types"
-import { getPercent } from "./helpers"
+import { getPercent, getRecurringPayment } from "./helpers"
 
 
 interface OptimizedLoanProps {
@@ -8,6 +8,8 @@ interface OptimizedLoanProps {
   propertyType: string
   loanType: string
   loanLimits: LoanLimitsObject
+  interestRate: number | undefined
+  secondaryInterestRate?: number | undefined
 }
 
 export const getOptimizedLoan = ({
@@ -16,6 +18,8 @@ export const getOptimizedLoan = ({
   propertyType,
   loanType,
   loanLimits,
+  interestRate,
+  secondaryInterestRate
 }: OptimizedLoanProps) => {
   let optimizedLoanObject = {
     downPayment: undefined,
@@ -29,6 +33,9 @@ export const getOptimizedLoan = ({
     budgetTest: undefined,
     equityPercentage: undefined,
     loanViable: undefined,
+    primaryLoanPI: undefined,
+    secondaryLoanPI: undefined,
+    secondaryLoanIO: undefined
   }
 
   const minPercentDown: {
@@ -111,6 +118,28 @@ export const getOptimizedLoan = ({
 
   const loanViable = getLoanViability()
 
+  const getPrimaryLoanMonthlyPrincipalAndInterest = () => {
+    const term = 30*12
+    const monthlyPayment = getRecurringPayment({loanAmount:primaryLoanAmount, interestRate: interestRate || 0, term})
+    return Math.floor(monthlyPayment)
+  }
+
+  const getSecondaryLoanMonthlyInterest = () => {
+    const term = 10*12
+    const monthlyPayment = getRecurringPayment({loanAmount:secondaryLoanAmount, interestRate: secondaryInterestRate || 0, term, interestOnly: true})
+    return Math.floor(monthlyPayment)
+  }
+
+  const getSecondaryLoanMonthlyPrincipalAndInterest = () => {
+    const term = 10*12
+    const monthlyPayment = getRecurringPayment({loanAmount:secondaryLoanAmount, interestRate: secondaryInterestRate || 0, term, interestOnly: false})
+    return Math.floor(monthlyPayment)
+  }
+
+  const primaryLoanPI = getPrimaryLoanMonthlyPrincipalAndInterest()
+  const secondaryLoanPI = getSecondaryLoanMonthlyPrincipalAndInterest()
+  const secondaryLoanInterest = getSecondaryLoanMonthlyInterest()
+
 
   return {
     downPayment: downPayment || 0,
@@ -123,7 +152,11 @@ export const getOptimizedLoan = ({
     loanLimit: loanLimit || 0,
     budgetTest: budgetTest || 0,
     equityPercentage: equity || 0,
-    loanViable: loanViable || false
+    loanViable: loanViable || false,
+    primaryLoanPI: primaryLoanPI || 0,
+    secondaryLoanPI: secondaryLoanPI || 0,
+    secondaryLoanIO: secondaryLoanInterest || 0,
+
   }
 
 }

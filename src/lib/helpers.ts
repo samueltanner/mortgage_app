@@ -15,21 +15,40 @@ export const parsePrice = (
   return result;
 }
 
- export const handlePriceChange = (value: string) => {
-    let newValue = value.replace(/,/g, '')
-    let parsedValue = newValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-    return parsedValue
-  }
+export const handlePriceChange = (value: string) => {
+  let newValue = value.replace(/,/g, '')
+  let parsedValue = newValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return parsedValue
+}
 
-  export const getCleanNumber = (price: string) => {
-    return Number(price?.replace(/,/g, ''))
-  }
+export const getCleanNumber = (price: string) => {
+  return Number(price?.replace(/,/g, ''))
+}
 
-  export const handleNumberInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = event.target.valueAsNumber;
-    return newValue;
-  };
+export const handleNumberInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const newValue = event.target.valueAsNumber;
+  return newValue;
+};
 
-  export const getPercent = (num: number, denom: number) => {
-    return Number(((num / denom) * 100).toFixed(2))
-  }
+export const getPercent = (num: number, denom: number) => {
+  return Number(((num / denom) * 100).toFixed(2))
+}
+
+export const getRecurringPayment = ({
+  loanAmount,
+  interestRate,
+  term,
+  interestOnly = false,
+}:{
+  loanAmount: number
+  interestRate: number
+  term: number
+  interestOnly?: boolean
+}) => {
+  const monthlyInterestRate = interestRate / 100 / 12
+  const monthlyPayment =
+    (monthlyInterestRate * loanAmount) /
+    (1 - Math.pow(1 + monthlyInterestRate, -term))
+  if (interestOnly) return monthlyInterestRate * loanAmount
+  return monthlyPayment
+}

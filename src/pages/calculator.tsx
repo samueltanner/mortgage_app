@@ -119,6 +119,7 @@ const Calculator = ({}) => {
       loanLimits,
       propertyType,
       loanType: 'fha',
+      interestRate: interestRates?.fha,
     })
     const optimizedConventional = getOptimizedLoan({
       listPrice,
@@ -126,6 +127,7 @@ const Calculator = ({}) => {
       loanLimits,
       propertyType,
       loanType: 'conventional',
+      interestRate: interestRates?.conventional,
     })
     const optimizedPiggyback = getOptimizedLoan({
       listPrice,
@@ -133,6 +135,8 @@ const Calculator = ({}) => {
       loanLimits,
       propertyType,
       loanType: 'piggy_back',
+      interestRate: interestRates?.conventional,
+      secondaryInterestRate: interestRates?.piggy_back,
     })
     const optimizedJumbo = getOptimizedLoan({
       listPrice,
@@ -140,6 +144,7 @@ const Calculator = ({}) => {
       loanLimits,
       propertyType,
       loanType: 'jumbo',
+      interestRate: interestRates?.jumbo,
     })
 
     const optimizedLoans = {
@@ -153,8 +158,8 @@ const Calculator = ({}) => {
   }, [loanLimits, downPayment, listPrice, propertyType])
 
   return (
-    <div className="grid h-screen w-screen grid-cols-2 gap-8 overflow-y-scroll bg-gray-50 p-10 text-slate-900">
-      <div className="flex w-full flex-col gap-8">
+    <div className="grid h-screen w-screen grid-cols-5 gap-8 overflow-y-scroll bg-gray-50 p-6 text-slate-900">
+      <div className="col-span-3 flex w-full flex-col gap-8 pt-2">
         {/* Property Info Card */}
         <CalculatorCard onClick={() => {}}>
           <span className="absolute -top-4 -right-4">
@@ -201,7 +206,7 @@ const Calculator = ({}) => {
           <h1 className="text-xl font-bold">Closing Costs & Fees</h1>
         </CalculatorCard>
       </div>
-      <div className=" flex flex-col">
+      <div className=" col-span-2 flex flex-col">
         <div className="sticky top-0">
           <CalculatorCard>
             <MortgageInfoCard
