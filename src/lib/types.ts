@@ -31,6 +31,7 @@ export interface OptimizedLoan {
   loanLimit: number | undefined,
   budgetTest:number | undefined,
   equityPercentage: number | undefined
+  loanViable: boolean | undefined
 }
 
 export interface OptimizedLoans {

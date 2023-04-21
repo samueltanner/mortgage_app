@@ -10,13 +10,6 @@ interface LoanInfoCardProps {
   loanMaximums: LoanMaximums | undefined
 }
 
-interface LoanOptionsObj {
-  conventional: boolean
-  fha: boolean
-  piggy_back: boolean
-  jumbo: boolean
-}
-
 export const LoanInfoCard = ({
   downPayment,
   optimizedLoans,
@@ -24,68 +17,15 @@ export const LoanInfoCard = ({
   loanMaximums,
 }: LoanInfoCardProps) => {
   const [tempDownPayment, setTempDownPayment] = useState<number | undefined>()
-  const [viableLoanOptions, setViableLoanOptions] = useState<LoanOptionsObj>({
-    conventional: true,
-    fha: true,
-    piggy_back: true,
-    jumbo: true,
-  })
 
   const handleCustomDownPayment = () => {
-    setDownPayment(tempDownPayment || 0)
-    const viableLoanOptions = getViableLoanOptionsByDownPayment(
-      tempDownPayment || 0,
-    )
-    setViableLoanOptions(viableLoanOptions)
+    if (tempDownPayment) {
+      setDownPayment(tempDownPayment)
+    }
   }
-
-  const handleResetDownPayment = () => {
-    setDownPayment(0)
-    setTempDownPayment(undefined)
-    const viableLoanOptions = getViableLoanOptionsByDownPayment(0)
-    setViableLoanOptions(viableLoanOptions)
-  }
-
-  const getViableLoanOptionsByDownPayment = (downPayment: number) => {
-    if (!downPayment || !optimizedLoans)
-      return {
-        conventional: true,
-        fha: true,
-        piggy_back: true,
-        jumbo: true,
-      }
-    downPayment >= optimizedLoans?.conventional?.downPayment
-      ? (viableLoanOptions.conventional = true)
-      : (viableLoanOptions.conventional = false)
-
-    downPayment >= optimizedLoans?.fha?.downPayment
-      ? (viableLoanOptions.fha = true)
-      : (viableLoanOptions.fha = false)
-
-    downPayment >= optimizedLoans?.piggy_back?.downPayment
-      ? (viableLoanOptions.piggy_back = true)
-      : (viableLoanOptions.piggy_back = false)
-
-    downPayment >= optimizedLoans?.jumbo?.downPayment
-      ? (viableLoanOptions.jumbo = true)
-      : (viableLoanOptions.jumbo = false)
-
-    return viableLoanOptions
-  }
-
-  useEffect(() => {
-    if (!downPayment) return
-  }, [downPayment])
 
   return (
     <div className="flex flex-col gap-2">
-      <button
-        onClick={() => {
-          console.log(downPayment, optimizedLoans)
-        }}
-      >
-        test
-      </button>
       <h1 className="text-xl font-bold">Loan Options</h1>
       <span className="flex flex-nowrap items-end gap-4">
         <span className="flex w-[40%] flex-col">
@@ -126,7 +66,9 @@ export const LoanInfoCard = ({
         <span className="flex flex-wrap gap-4">
           <span
             className={`${
-              viableLoanOptions.conventional ? 'text-black' : 'text-gray-300'
+              optimizedLoans?.conventional.loanViable
+                ? 'text-black'
+                : 'text-gray-300'
             } flex w-fit flex-col`}
           >
             <h2 className="font-bold">Conventional Mortgage</h2>
@@ -135,24 +77,26 @@ export const LoanInfoCard = ({
               Loan Amount: ${optimizedLoans?.conventional?.primaryLoanAmount}
             </p>
             <p>Down Payment: ${optimizedLoans?.conventional?.downPayment}</p>
-            <p>Equity: {optimizedLoans?.conventional?.equity}%</p>
+            <p>Equity: {optimizedLoans?.conventional?.equityPercentage}%</p>
           </span>
 
           <span
             className={`${
-              viableLoanOptions.fha ? 'text-black' : 'text-gray-300'
+              optimizedLoans?.fha.loanViable ? 'text-black' : 'text-gray-300'
             } flex w-fit flex-col`}
           >
             <h2 className="font-bold">FHA Mortgage</h2>
             <p>Loan Maximum: ${optimizedLoans?.fha?.loanLimit}</p>
             <p>Loan Amount: ${optimizedLoans?.fha?.primaryLoanAmount}</p>
             <p>Down Payment: ${optimizedLoans?.fha?.downPayment}</p>
-            <p>Equity: {optimizedLoans?.fha?.equity}%</p>
+            <p>Equity: {optimizedLoans?.fha?.equityPercentage}%</p>
           </span>
 
           <span
             className={`${
-              viableLoanOptions.piggy_back ? 'text-black' : 'text-gray-300'
+              optimizedLoans?.piggy_back.loanViable
+                ? 'text-black'
+                : 'text-gray-300'
             } flex w-fit flex-col`}
           >
             <h2 className="font-bold">Piggy Back Mortgage</h2>
@@ -169,12 +113,12 @@ export const LoanInfoCard = ({
             </p>
 
             <p>Down Payment: ${optimizedLoans?.piggy_back?.downPayment}</p>
-            <p>Equity: {optimizedLoans?.piggy_back?.equity}%</p>
+            <p>Equity: {optimizedLoans?.piggy_back?.equityPercentage}%</p>
           </span>
 
           <span
             className={`${
-              viableLoanOptions.jumbo ? 'text-black' : 'text-gray-300'
+              optimizedLoans?.jumbo.loanViable ? 'text-black' : 'text-gray-300'
             } flex w-fit flex-col`}
           >
             <h2 className="font-bold">Jumbo Mortgage</h2>
@@ -182,7 +126,7 @@ export const LoanInfoCard = ({
               Primary Loan Amount: ${optimizedLoans?.jumbo?.primaryLoanAmount}
             </p>
             <p>Down Payment: ${optimizedLoans?.jumbo?.downPayment}</p>
-            <p>Equity: {optimizedLoans?.jumbo?.equity}%</p>
+            <p>Equity: {optimizedLoans?.jumbo?.equityPercentage}%</p>
           </span>
 
           {/* <span className="flex w-fit flex-col">

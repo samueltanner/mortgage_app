@@ -110,7 +110,7 @@ const Calculator = ({}) => {
       customDownPayment: downPayment,
       loanLimits,
       propertyType,
-      loanType: 'piggyback',
+      loanType: 'piggy_back',
     })
     const optimizedJumbo = getOptimizedLoan({
       listPrice,
@@ -128,22 +128,13 @@ const Calculator = ({}) => {
     }
 
     setOptimizedLoans(optimizedLoans)
-  }, [loanLimits, downPayment, listPrice])
-
-  console.log('optimizedLoans', optimizedLoans)
+  }, [loanLimits, downPayment, listPrice, propertyType])
 
   return (
     <div className="grid h-screen w-screen grid-cols-2 gap-8 overflow-y-scroll bg-gray-50 p-10 text-slate-900">
       <div className="flex w-full flex-col gap-8">
         {/* Property Info Card */}
         <CalculatorCard onClick={() => {}}>
-          <button
-            onClick={() => {
-              // getOptLoan()
-            }}
-          >
-            Test Optimized Loan
-          </button>
           <span className="absolute -top-4 -right-4">
             <CardOverlayIcon src={''} alt="sam" size="small" icon="home" />
           </span>
@@ -178,6 +169,8 @@ const Calculator = ({}) => {
             loanLimits={loanLimits}
             listPrice={listPrice}
             downPayment={downPayment}
+            optimizedLoans={optimizedLoans}
+            setDownPayment={setDownPayment}
           />
         </CalculatorCard>
 

@@ -28,6 +28,7 @@ export const getOptimizedLoan = ({
     loanLimit: undefined,
     budgetTest: undefined,
     equityPercentage: undefined,
+    loanViable: undefined,
   }
 
   const minPercentDown: {
@@ -45,16 +46,15 @@ export const getOptimizedLoan = ({
   const loanLimit = loanLimits[loanCategory][propertyType];
 
   const getMinimumDownPayment = () => {
-    if (loanType === 'piggy_back') return listPrice * minPercentDown.piggy_back
-    if (loanType === 'jumbo') return listPrice * minPercentDown.jumbo
+    if (loanType === 'piggy_back') return Math.floor(listPrice * minPercentDown.piggy_back)
+    if (loanType === 'jumbo') return Math.floor(listPrice * minPercentDown.jumbo)
     const minDownByPercent = listPrice * minPercentDown[loanType]
     const minDownByLoanLimit = listPrice - loanLimit
     const minDown = minDownByPercent > minDownByLoanLimit ? minDownByPercent : minDownByLoanLimit
-    return Math.floor(minDown)
+    return Math.floor(minDown > 0 ? minDown : 0)
   }
 
   const minimumDownPayment = getMinimumDownPayment()
-
 
   const getDownPayment = () => {
     if(!customDownPayment || customDownPayment < minimumDownPayment) return minimumDownPayment
@@ -97,7 +97,17 @@ export const getOptimizedLoan = ({
 
   const primaryLoanAmount = getPrimaryLoanAmount()
   const secondaryLoanAmount = getSecondaryLoanAmount()
+  const budgetTest = listPrice - downPayment - primaryLoanAmount - secondaryLoanAmount
   const equity = getEquity()
+
+  const getLoanViability = () => {
+    if((loanType === 'jumbo' || loanType === 'piggy_back') && listPrice < loanLimit) return false
+    if (budgetTest !== 0) return false
+    if (!customDownPayment) return true
+    return customDownPayment < minimumDownPayment ? false : true
+  }
+
+  const loanViable = getLoanViability()
 
 
   return {
@@ -109,8 +119,9 @@ export const getOptimizedLoan = ({
     loanType: loanType,
     propertyType: propertyType || '',
     loanLimit: loanLimit || 0,
-    budgetTest: listPrice - downPayment - primaryLoanAmount - secondaryLoanAmount,
-    equityPercentage: equity || 0
+    budgetTest: budgetTest || 0,
+    equityPercentage: equity || 0,
+    loanViable: loanViable || false
   }
 
 }
