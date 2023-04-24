@@ -35,6 +35,7 @@ export interface OptimizedLoan {
   primaryLoanPI: number | undefined
   secondaryLoanPI: number | undefined
   secondaryLoanIO: number | undefined
+  mortgageInsurance: number | undefined
 }
 
 export interface OptimizedLoans {

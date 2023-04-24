@@ -155,8 +155,10 @@ const Calculator = ({}) => {
     }
 
     setOptimizedLoans(optimizedLoans)
+    console.log('optimizedLoans', optimizedLoans)
   }, [loanLimits, downPayment, listPrice, propertyType])
 
+  // console.log(propertyData);
   return (
     <div className="grid h-screen w-screen grid-cols-5 gap-8 overflow-y-scroll bg-gray-50 p-6 text-slate-900">
       <div className="col-span-3 flex w-full flex-col gap-8 pt-2">

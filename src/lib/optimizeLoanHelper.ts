@@ -35,7 +35,8 @@ export const getOptimizedLoan = ({
     loanViable: undefined,
     primaryLoanPI: undefined,
     secondaryLoanPI: undefined,
-    secondaryLoanIO: undefined
+    secondaryLoanIO: undefined,
+    mortgageInsurance: undefined
   }
 
   const minPercentDown: {
@@ -136,9 +137,15 @@ export const getOptimizedLoan = ({
     return Math.floor(monthlyPayment)
   }
 
+  const getMortgageInsurance = () => {
+    if (loanType === 'fha') return Math.floor(primaryLoanAmount * 0.01/12)
+    if (equity < 20) return Math.floor(primaryLoanAmount * 0.01/12)
+  }
+
   const primaryLoanPI = getPrimaryLoanMonthlyPrincipalAndInterest()
   const secondaryLoanPI = getSecondaryLoanMonthlyPrincipalAndInterest()
   const secondaryLoanInterest = getSecondaryLoanMonthlyInterest()
+  const mortgageInsurance = getMortgageInsurance()
 
 
   return {
@@ -156,7 +163,7 @@ export const getOptimizedLoan = ({
     primaryLoanPI: primaryLoanPI || 0,
     secondaryLoanPI: secondaryLoanPI || 0,
     secondaryLoanIO: secondaryLoanInterest || 0,
-
+    mortgageInsurance: mortgageInsurance || 0
   }
 
 }
