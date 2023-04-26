@@ -1,12 +1,12 @@
 import { CalculatorCard } from '@/components/CalculatorCard'
 import { CardOverlayIcon } from '@/components/CardOverlayIcon'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useGetPropertyInfo } from '@/lib/useGetPropertyInfo'
 import { useGetCounties } from '@/lib/useGetCounties'
 import { useGetLoanLimits } from '@/lib/useGetLoanLimits'
 import {
+  CashflowObject,
   InterestRates,
-  LoanMaximums,
   OptimizedLoan,
   OptimizedLoans,
 } from '@/lib/types'
@@ -33,6 +33,19 @@ const Calculator = ({}) => {
     piggy_back: undefined,
     va: undefined,
   })
+  const [monthlyCashflowObj, setMonthlyCashflowObj] = useState<CashflowObject>({
+    monthly_household_income: 0,
+    monthly_household_expenses: 0,
+    rental_income: 0,
+    property_taxes: 0,
+    homeowners_insurance: 0,
+    hoa_fees: 0,
+    mortgage_insurance: 0,
+    utilities: 0,
+    principal_and_interest: 0,
+    household_maintenance: 0,
+  })
+  const [selectedLoan, setSelectedLoan] = useState<string | null>(null)
 
   const {
     data: propertyData,
@@ -71,6 +84,26 @@ const Calculator = ({}) => {
     if (todaysInterestRates) setInterestRates(todaysInterestRates)
   }, [todaysInterestRates])
 
+  const totalCashflow = useMemo(() => {
+    const totalIncome =
+      monthlyCashflowObj.monthly_household_income +
+      monthlyCashflowObj.rental_income
+
+    const totalExpenses =
+      monthlyCashflowObj.monthly_household_expenses +
+      monthlyCashflowObj.property_taxes +
+      monthlyCashflowObj.principal_and_interest +
+      monthlyCashflowObj.hoa_fees +
+      monthlyCashflowObj.utilities +
+      monthlyCashflowObj.homeowners_insurance
+
+    return {
+      totalIncome,
+      totalExpenses,
+      totalCashflow: totalIncome - totalExpenses,
+    }
+  }, [monthlyCashflowObj])
+
   const getNumberOfUnits = useCallback(() => {
     if (!propertyData || !propertyData.property_type) return
 
@@ -108,7 +141,7 @@ const Calculator = ({}) => {
       setListingState(propertyData.address.state)
       setListPrice(propertyData.list_price)
     }
-  }, [propertyData, propertySuccess, propertyLoading])
+  }, [propertyData, propertySuccess, propertyLoading, optimizedLoans])
 
   useEffect(() => {
     if (!loanLimits || !listPrice || !propertyType) return
@@ -155,10 +188,8 @@ const Calculator = ({}) => {
     }
 
     setOptimizedLoans(optimizedLoans)
-    console.log('optimizedLoans', optimizedLoans)
   }, [loanLimits, downPayment, listPrice, propertyType])
 
-  // console.log(propertyData);
   return (
     <div className="grid h-screen w-screen grid-cols-5 gap-8 overflow-y-scroll bg-gray-50 p-6 text-slate-900">
       <div className="col-span-3 flex w-full flex-col gap-8 pt-2">
@@ -191,6 +222,8 @@ const Calculator = ({}) => {
             optimizedLoans={optimizedLoans}
             setDownPayment={setDownPayment}
             interestRates={interestRates}
+            selectedLoan={selectedLoan}
+            setSelectedLoan={setSelectedLoan}
           />
         </CalculatorCard>
 
@@ -198,7 +231,14 @@ const Calculator = ({}) => {
           <span className="absolute -top-4 -right-4">
             <CardOverlayIcon size="small" icon="income" />
           </span>
-          <IncomeAndExpensesCard />
+          <IncomeAndExpensesCard
+            monthlyCashflowObj={monthlyCashflowObj}
+            setMonthlyCashflowObj={setMonthlyCashflowObj}
+            optimizedLoans={optimizedLoans}
+            selectedLoan={selectedLoan}
+            propertyData={propertyData}
+            totalCashflow={totalCashflow}
+          />
         </CalculatorCard>
 
         <CalculatorCard>

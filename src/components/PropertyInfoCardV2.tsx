@@ -81,7 +81,7 @@ export const PropertyInfoCard = ({
                 id="home-price"
                 type="number"
                 className="w-[60%] rounded-md border-2 border-slate-900 bg-gray-50 px-2"
-                value={listPrice}
+                value={listPrice || ''}
                 onChange={(e) => {
                   setListPrice(Number(e.target.value))
                 }}

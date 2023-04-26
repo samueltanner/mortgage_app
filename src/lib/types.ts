@@ -39,6 +39,7 @@ export interface OptimizedLoan {
 }
 
 export interface OptimizedLoans {
+  [key: string] : OptimizedLoan
   fha: OptimizedLoan
   conventional: OptimizedLoan
   piggy_back: OptimizedLoan
@@ -66,4 +67,18 @@ export interface InterestRates {
   jumbo: number| undefined
   piggy_back: number| undefined
   va: number| undefined
+}
+
+export interface CashflowObject {
+  [key: string]: number | undefined
+  monthly_household_income: number
+  monthly_household_expenses: number
+  rental_income: number
+  property_taxes: number
+  homeowners_insurance: number
+  hoa_fees: number
+  mortgage_insurance: number
+  utilities: number
+  principal_and_interest: number
+  household_maintenance: number
 }

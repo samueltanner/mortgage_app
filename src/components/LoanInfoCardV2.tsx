@@ -6,12 +6,16 @@ interface LoanInfoCardProps {
   optimizedLoans: OptimizedLoans | undefined
   setDownPayment: (downPayment: number) => void
   interestRates: InterestRates
+  selectedLoan: string | null
+  setSelectedLoan: (loan: string | null) => void
 }
 
 export const LoanInfoCard = ({
   optimizedLoans,
   setDownPayment,
   interestRates,
+  selectedLoan,
+  setSelectedLoan,
 }: LoanInfoCardProps) => {
   const [tempDownPayment, setTempDownPayment] = useState<number | undefined>()
 
@@ -71,12 +75,26 @@ export const LoanInfoCard = ({
               optimizedLoans?.conventional.loanViable
                 ? 'text-black'
                 : 'text-gray-300'
-            } flex w-fit flex-col`}
+            } flex w-fit cursor-pointer flex-col`}
+            onClick={() => {
+              optimizedLoans?.conventional.loanViable &&
+                setSelectedLoan('conventional')
+            }}
           >
-            <h2 className="font-bold">Conventional Mortgage</h2>
+            <h2
+              className={`font-bold ${
+                selectedLoan === 'conventional' && 'text-teal-500 underline'
+              }`}
+            >
+              Conventional Mortgage
+            </h2>
             <p>Interest Rate: {interestRates?.conventional}%</p>
             <p>Down Payment: ${optimizedLoans?.conventional?.downPayment}</p>
             <p>Monthly P&I: ${optimizedLoans?.conventional?.primaryLoanPI}</p>
+            <p>
+              Mortgage Insurance: $
+              {optimizedLoans?.conventional?.mortgageInsurance}
+            </p>
             <p>Loan Maximum: ${optimizedLoans?.conventional?.loanLimit}</p>
             <p>
               Loan Amount: ${optimizedLoans?.conventional?.primaryLoanAmount}
@@ -87,12 +105,22 @@ export const LoanInfoCard = ({
           <span
             className={`${
               optimizedLoans?.fha.loanViable ? 'text-black' : 'text-gray-300'
-            } flex w-fit flex-col`}
+            } flex w-fit cursor-pointer flex-col`}
+            onClick={() => {
+              optimizedLoans?.fha.loanViable && setSelectedLoan('fha')
+            }}
           >
-            <h2 className="font-bold">FHA Mortgage</h2>
+            <h2
+              className={`font-bold ${
+                selectedLoan === 'fha' && 'text-teal-500 underline'
+              }`}
+            >
+              FHA Mortgage
+            </h2>
             <p>Interest Rate: {interestRates?.fha}%</p>
             <p>Down Payment: ${optimizedLoans?.fha?.downPayment}</p>
             <p>Monthly P&I: ${optimizedLoans?.fha?.primaryLoanPI}</p>
+            <p>Mortgage Insurance: ${optimizedLoans?.fha?.mortgageInsurance}</p>
             <p>Loan Maximum: ${optimizedLoans?.fha?.loanLimit}</p>
             <p>Loan Amount: ${optimizedLoans?.fha?.primaryLoanAmount}</p>
             <p>Equity: {optimizedLoans?.fha?.equityPercentage}%</p>
@@ -103,9 +131,19 @@ export const LoanInfoCard = ({
               optimizedLoans?.piggy_back.loanViable
                 ? 'text-black'
                 : 'text-gray-300'
-            } flex w-fit flex-col`}
+            } flex w-fit cursor-pointer flex-col`}
+            onClick={() => {
+              optimizedLoans?.piggy_back.loanViable &&
+                setSelectedLoan('piggy_back')
+            }}
           >
-            <h2 className="font-bold">Piggy Back Mortgage</h2>
+            <h2
+              className={`font-bold ${
+                selectedLoan === 'piggy_back' && 'text-teal-500 underline'
+              }`}
+            >
+              Piggy Back Mortgage
+            </h2>
             <p>Interest Rate: {interestRates?.conventional}%</p>
             <p>Down Payment: ${optimizedLoans?.piggy_back?.downPayment}</p>
             <p>
@@ -119,6 +157,10 @@ export const LoanInfoCard = ({
             <p>
               Monthly Interest Only (Secondary Loan): $
               {optimizedLoans?.piggy_back?.secondaryLoanIO}
+            </p>
+            <p>
+              Mortgage Insurance: $
+              {optimizedLoans?.piggy_back?.mortgageInsurance}
             </p>
             <p>Secondary Interest Rate: {interestRates?.piggy_back}%</p>
             <p>
@@ -139,11 +181,24 @@ export const LoanInfoCard = ({
           <span
             className={`${
               optimizedLoans?.jumbo.loanViable ? 'text-black' : 'text-gray-300'
-            } flex w-fit flex-col`}
+            } flex w-fit cursor-pointer flex-col`}
+            onClick={() => {
+              optimizedLoans?.jumbo.loanViable && setSelectedLoan('jumbo')
+            }}
           >
-            <h2 className="font-bold">Jumbo Mortgage</h2>
+            <h2
+              className={`font-bold ${
+                selectedLoan === 'jumbo' && 'text-teal-500 underline'
+              }`}
+            >
+              Jumbo Mortgage
+            </h2>
             <p>Interest Rate: {interestRates?.jumbo}%</p>
             <p>Down Payment: ${optimizedLoans?.jumbo?.downPayment}</p>
+            <p>Monthly P&I: ${optimizedLoans?.jumbo?.primaryLoanPI}</p>
+            <p>
+              Mortgage Insurance: ${optimizedLoans?.jumbo?.mortgageInsurance}
+            </p>
             <p>
               Primary Loan Amount: ${optimizedLoans?.jumbo?.primaryLoanAmount}
             </p>

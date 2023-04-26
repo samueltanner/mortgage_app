@@ -39,11 +39,11 @@ export const PropertyInfoCard = ({
   }
 
   return (
-    <div className="flex flex-col gap-2 items-start w-full">
+    <div className="flex w-full flex-col items-start gap-2">
       <span className="flex gap-2">
         <p className="text-2xl font-bold">Property Info</p>
         <button
-          className="border-2 px-2 w-fit h-fit mt-1"
+          className="mt-1 h-fit w-fit border-2 px-2"
           onClick={() => {
             resetPropertyVars()
           }}
@@ -78,7 +78,7 @@ export const PropertyInfoCard = ({
             id="county"
             onChange={(e) => {
               const selectedCounty = counties?.find(
-                (county) => county.id === e.target.value,
+                (county) => county.id === Number(e.target.value),
               )
               setSelectedCounty(selectedCounty)
             }}
@@ -89,7 +89,7 @@ export const PropertyInfoCard = ({
             </option> */}
             {counties?.map((county) => (
               <option key={county.id} value={county.id}>
-                {county.county}
+                {county.county_name}
               </option>
             ))}
           </select>
