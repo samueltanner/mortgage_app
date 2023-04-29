@@ -6,6 +6,7 @@ import { useGetCounties } from '@/lib/useGetCounties'
 import { useGetLoanLimits } from '@/lib/useGetLoanLimits'
 import {
   CashflowObject,
+  ClosingCosts,
   InterestRates,
   OptimizedLoan,
   OptimizedLoans,
@@ -16,6 +17,7 @@ import { MortgageInfoCard } from '@/components/MortgageInfoCard'
 import { IncomeAndExpensesCard } from '@/components/IncomeAndExpensesCard'
 import { getOptimizedLoan } from '@/lib/optimizeLoanHelper'
 import { useTodaysInterestRates } from '@/lib/useTodaysInterestRates'
+import { ClosingCostsAndFeesCard } from '@/components/ClosingCostsAndFeesCard'
 
 const Calculator = ({}) => {
   const [propertyExpanded, setPropertyExpanded] = useState<boolean>(true)
@@ -46,6 +48,12 @@ const Calculator = ({}) => {
     household_maintenance: 0,
   })
   const [selectedLoan, setSelectedLoan] = useState<string | null>(null)
+  const [closingCosts, setClosingCosts] = useState<ClosingCosts>({
+    sellers_credit: 0,
+    appraisal: 0,
+    inspection: 0,
+    lending_fees: 0,
+  })
 
   const {
     data: propertyData,
@@ -62,7 +70,6 @@ const Calculator = ({}) => {
     isLoading: countiesLoading,
     isSuccess: countiesSuccess,
   } = useGetCounties({ state_abbr: listingState })
-
   const {
     data: loanLimits,
     error: loanLimitsError,
@@ -190,6 +197,66 @@ const Calculator = ({}) => {
     setOptimizedLoans(optimizedLoans)
   }, [loanLimits, downPayment, listPrice, propertyType])
 
+  const handleUpdateClosingCosts = (updates: Record<string, number>) => {
+    const newClosingCostsObj = { ...closingCosts, ...updates }
+    setClosingCosts(newClosingCostsObj)
+  }
+
+  useEffect(() => {
+    const propertyTypeObj: {
+      [key: string]: number
+      one_unit: number
+      two_unit: number
+      three_unit: number
+      four_unit: number
+    } = {
+      one_unit: 1 * 350,
+      two_unit: 2 * 350,
+      three_unit: 3 * 350,
+      four_unit: 4 * 350,
+    }
+
+    let updates = {
+      sellers_credit: closingCosts.sellers_credit,
+      inspection: closingCosts.inspection,
+      appraisal: closingCosts.appraisal,
+      lending_fees: closingCosts.lending_fees,
+    }
+
+    if (propertyType) {
+      updates['inspection'] = propertyTypeObj[propertyType]
+      updates['appraisal'] = propertyTypeObj[propertyType]
+    }
+
+    if (optimizedLoans && selectedLoan) {
+      updates['lending_fees'] = Math.floor(
+        optimizedLoans[selectedLoan].primaryLoanAmount! * 0.02,
+      )
+    }
+
+    handleUpdateClosingCosts(updates)
+  }, [propertyType, optimizedLoans, selectedLoan])
+
+  const getCashToClose = (): number => {
+    let dp = 0
+    if (optimizedLoans && selectedLoan) {
+      dp = optimizedLoans[selectedLoan].downPayment || 0
+    }
+
+    const totalCosts =
+      closingCosts.inspection +
+      closingCosts.appraisal +
+      closingCosts.lending_fees +
+      dp
+
+    const cashToClose =
+      totalCosts - closingCosts.sellers_credit >= 0
+        ? totalCosts - closingCosts.sellers_credit
+        : 0
+
+    return cashToClose
+  }
+
   return (
     <div className="grid h-screen w-screen grid-cols-5 gap-8 overflow-y-scroll bg-gray-50 p-6 text-slate-900">
       <div className="col-span-3 flex w-full flex-col gap-8 pt-2">
@@ -246,6 +313,11 @@ const Calculator = ({}) => {
             <CardOverlayIcon size="small" icon="closing" />
           </span>
           <h1 className="text-xl font-bold">Closing Costs & Fees</h1>
+          <ClosingCostsAndFeesCard
+            closingCosts={closingCosts}
+            handleUpdateClosingCosts={handleUpdateClosingCosts}
+            getCashToClose={getCashToClose}
+          />
         </CalculatorCard>
       </div>
       <div className=" col-span-2 flex flex-col">

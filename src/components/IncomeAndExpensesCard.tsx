@@ -73,6 +73,7 @@ export const IncomeAndExpensesCard = ({
     dti: number
     her: number
     ter: number
+    tsr: number
   } => {
     const houseCosts =
       monthlyCashflowObj.hoa_fees +
@@ -87,28 +88,32 @@ export const IncomeAndExpensesCard = ({
       monthlyCashflowObj.monthly_household_income +
       monthlyCashflowObj.rental_income
 
-    const dti = (monthlyDebt / monthlyIncome) * 100 || 0
-    const housing_expense_ratio = (houseCosts / monthlyIncome) * 100 || 0
-    const twenty_eight_rule = (houseCosts / monthlyIncome) * 100 || 0
-    return { dti: dti, her: housing_expense_ratio, ter: twenty_eight_rule }
+    const dti =
+      isFinite(monthlyDebt) && monthlyIncome > 0
+        ? (monthlyDebt / monthlyIncome) * 100
+        : 0
+    const housing_expense_ratio =
+      isFinite(monthlyIncome) && monthlyIncome > 0
+        ? (houseCosts / monthlyIncome) * 100
+        : 0
+    const twenty_eight_rule =
+      isFinite(monthlyIncome) && monthlyIncome > 0
+        ? (houseCosts / monthlyIncome) * 100
+        : 0
+    const thirty_six_rule =
+      isFinite(monthlyIncome) && monthlyIncome > 0
+        ? (monthlyDebt / monthlyIncome) * 100
+        : 0
+    return {
+      dti: dti,
+      her: housing_expense_ratio,
+      ter: twenty_eight_rule,
+      tsr: thirty_six_rule,
+    }
   }
 
   return (
     <div>
-      <button
-        onClick={() => {
-          console.log('monthlyCashflowObj', monthlyCashflowObj)
-          console.log('newCashflowObj', tempCashflowObject)
-          console.log(
-            'logic',
-            monthlyCashflowObj.hoa_fees ||
-              propertyData?.hoa?.payment ||
-              undefined,
-          )
-        }}
-      >
-        test
-      </button>
       <h1 className="text-xl font-bold">Monthly Income & Expenses</h1>
       <div className="flex flex-col gap-2">
         <span className="flex flex-col">
@@ -274,15 +279,39 @@ export const IncomeAndExpensesCard = ({
             <h1 className="text-md font-bold">Housing Expense Ratio</h1>
             <p>{getAffordabilityRatios().her.toFixed(2)}%</p>
           </span>
-          <span
-            className={`${
-              getAffordabilityRatios().her > 28
-                ? 'text-red-500'
-                : 'text-teal-500'
-            }`}
-          >
-            <h1 className="text-md font-bold">28/36 Rule</h1>
-            <p>{getAffordabilityRatios().ter.toFixed(2)}%</p>
+          <span>
+            <h1
+              className={`${
+                getAffordabilityRatios().ter > 28 ||
+                getAffordabilityRatios().tsr > 36
+                  ? 'text-red-500'
+                  : 'text-teal-500'
+              } text-md font-bold`}
+            >
+              28/36 Rule
+            </h1>
+            <span className="flex gap-1">
+              <p
+                className={`${
+                  getAffordabilityRatios().ter > 28
+                    ? 'text-red-500'
+                    : 'text-teal-500'
+                }`}
+              >
+                {getAffordabilityRatios().ter.toFixed(2)}%
+              </p>
+              <p>/</p>
+              <p
+                className={`${
+                  getAffordabilityRatios().tsr > 36
+                    ? 'text-red-500'
+                    : 'text-teal-500'
+                }`}
+              >
+                {' '}
+                {getAffordabilityRatios().tsr.toFixed(2)}%
+              </p>
+            </span>
           </span>
         </div>
       </div>

@@ -82,3 +82,11 @@ export interface CashflowObject {
   principal_and_interest: number
   household_maintenance: number
 }
+
+export interface ClosingCosts {
+  [key:string]: number | undefined
+  sellers_credit: number
+  appraisal: number
+  inspection: number
+  lending_fees: number
+}
