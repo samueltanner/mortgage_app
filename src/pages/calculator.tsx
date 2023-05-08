@@ -60,6 +60,7 @@ const Calculator = ({}) => {
     error: propertyError,
     isLoading: propertyLoading,
     isSuccess: propertySuccess,
+    isError: propertyIsError,
   } = useGetPropertyInfo({
     listing_url: listingURL,
     get_loan_limits: true,
@@ -148,7 +149,7 @@ const Calculator = ({}) => {
       setListingState(propertyData.address.state)
       setListPrice(propertyData.list_price)
     }
-  }, [propertyData, propertySuccess, propertyLoading, optimizedLoans])
+  }, [propertyData, propertySuccess, propertyLoading])
 
   useEffect(() => {
     if (!loanLimits || !listPrice || !propertyType) return
@@ -277,6 +278,8 @@ const Calculator = ({}) => {
             listingCounty={listingCounty}
             propertyType={propertyType}
             counties={counties}
+            propertyIsError={propertyIsError}
+            propertyLoading={propertyLoading}
           />
         </CalculatorCard>
 

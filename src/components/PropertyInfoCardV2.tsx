@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { BiSearch } from 'react-icons/bi'
+import { BiLoader, BiSearch } from 'react-icons/bi'
 import { County } from '../lib/types'
 import { states } from '@/lib/data'
 
@@ -15,6 +15,8 @@ interface PropertyInfoCardProps {
   listingCounty: string
   propertyType: string
   counties: County[]
+  propertyIsError: boolean
+  propertyLoading: boolean
 }
 
 export const PropertyInfoCard = ({
@@ -29,6 +31,8 @@ export const PropertyInfoCard = ({
   listingCounty,
   propertyType,
   counties,
+  propertyIsError,
+  propertyLoading,
 }: PropertyInfoCardProps) => {
   const urlInputRef = useRef<HTMLInputElement>(null)
   const handleSearchRedfinUrl = () => {
@@ -39,8 +43,8 @@ export const PropertyInfoCard = ({
   const handleListingStateChange = (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => {
-    // setListingCounty('')
-    // setPropertyType('')
+    setListingCounty('')
+    setPropertyType('')
     setListingState(e.target.value)
   }
 
@@ -65,14 +69,24 @@ export const PropertyInfoCard = ({
                 handleSearchRedfinUrl()
               }}
             >
-              <BiSearch className="h-6 w-6" />
+              <>
+                {!propertyLoading && <BiSearch className="h-6 w-6" />}
+                {propertyLoading && (
+                  <BiLoader className="h-6 w-6 animate-spin" />
+                )}
+              </>
             </button>
           </span>
-
-          <span className="flex w-full items-center justify-center">
-            <hr className="mt-2 flex w-full border-slate-900" />
+          <span>
+            {propertyIsError && (
+              <p className="text-sm">
+                There was an error fetching the property information
+              </p>
+            )}
           </span>
-
+          <span className="flex w-full items-center justify-center">
+            <hr className="mt-0 flex w-full border-slate-900" />
+          </span>
           <span className="flex gap-2">
             <span className="flex flex-col">
               <label htmlFor="home-price">List Price</label>
