@@ -72,14 +72,14 @@ export const PropertyInfoCard = ({
               <>
                 {!propertyLoading && <BiSearch className="h-6 w-6" />}
                 {propertyLoading && (
-                  <BiLoader className="h-6 w-6 animate-spin" />
+                  <BiLoader className="h-6 w-6 animate-spin-slow duration-1000" />
                 )}
               </>
             </button>
           </span>
           <span>
             {propertyIsError && (
-              <p className="text-sm">
+              <p className="text-sm font-bold text-red-500">
                 There was an error fetching the property information
               </p>
             )}

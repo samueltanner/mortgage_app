@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { BiCalculator, BiReset, BiSliderAlt } from 'react-icons/bi'
 import { OptimizedLoans, InterestRates } from '@/lib/types'
+import { DataTable } from './DataTable'
 
 interface LoanInfoCardProps {
   optimizedLoans: OptimizedLoans | undefined
@@ -29,6 +30,126 @@ export const LoanInfoCard = ({
     setDownPayment(0)
     setTempDownPayment(undefined)
   }
+
+  const tableData = useMemo(
+    () => [
+      {
+        loan_type: 'conventional',
+        viable: optimizedLoans?.conventional?.loanViable,
+        col2: interestRates?.conventional,
+        col3: optimizedLoans?.conventional?.downPayment,
+        col4: optimizedLoans?.conventional?.primaryLoanPI,
+        col5: optimizedLoans?.conventional?.mortgageInsurance,
+        col6: optimizedLoans?.conventional?.loanLimit,
+        col7: optimizedLoans?.conventional?.primaryLoanAmount,
+        col8: optimizedLoans?.conventional?.equityPercentage,
+        col9: optimizedLoans?.conventional?.secondaryLoanPI,
+        col10: optimizedLoans?.conventional?.secondaryLoanIO,
+        col11: 0,
+        col12: optimizedLoans?.conventional?.secondaryLoanAmount,
+      },
+      {
+        loan_type: 'fha',
+        viable: optimizedLoans?.fha?.loanViable,
+        col2: interestRates?.fha,
+        col3: optimizedLoans?.fha?.downPayment,
+        col4: optimizedLoans?.fha?.primaryLoanPI,
+        col5: optimizedLoans?.fha?.mortgageInsurance,
+        col6: optimizedLoans?.fha?.loanLimit,
+        col7: optimizedLoans?.fha?.primaryLoanAmount,
+        col8: optimizedLoans?.fha?.equityPercentage,
+        col9: optimizedLoans?.fha?.secondaryLoanPI,
+        col10: optimizedLoans?.fha?.secondaryLoanIO,
+        col11: 0,
+        col12: optimizedLoans?.fha?.secondaryLoanAmount,
+      },
+      {
+        loan_type: 'jumbo',
+        viable: optimizedLoans?.jumbo?.loanViable,
+        col2: interestRates?.jumbo,
+        col3: optimizedLoans?.jumbo?.downPayment,
+        col4: optimizedLoans?.jumbo?.primaryLoanPI,
+        col5: optimizedLoans?.jumbo?.mortgageInsurance,
+        col6: optimizedLoans?.jumbo?.loanLimit,
+        col7: optimizedLoans?.jumbo?.primaryLoanAmount,
+        col8: optimizedLoans?.jumbo?.equityPercentage,
+        col9: optimizedLoans?.jumbo?.secondaryLoanPI,
+        col10: optimizedLoans?.jumbo?.secondaryLoanIO,
+        col11: 0,
+        col12: optimizedLoans?.jumbo?.secondaryLoanAmount,
+      },
+      {
+        loan_type: 'piggy_back',
+        viable: optimizedLoans?.piggy_back?.loanViable,
+        col2: interestRates?.conventional,
+        col3: optimizedLoans?.piggy_back?.downPayment,
+        col4: optimizedLoans?.piggy_back?.primaryLoanPI,
+        col5: optimizedLoans?.piggy_back?.mortgageInsurance,
+        col6: optimizedLoans?.piggy_back?.loanLimit,
+        col7: optimizedLoans?.piggy_back?.primaryLoanAmount,
+        col8: optimizedLoans?.piggy_back?.equityPercentage,
+        col9: optimizedLoans?.piggy_back?.secondaryLoanPI,
+        col10: optimizedLoans?.piggy_back?.secondaryLoanIO,
+        col11: interestRates?.piggy_back,
+        col12: optimizedLoans?.piggy_back?.secondaryLoanAmount,
+      },
+    ],
+    [optimizedLoans, interestRates],
+  )
+
+  const columns = useMemo(
+    () => [
+      {
+        Header: 'Loan Type',
+        accessor: 'loan_type',
+      },
+      {
+        Header: 'Interest Rate',
+        accessor: 'col2',
+      },
+      {
+        Header: 'Down Payment',
+        accessor: 'col3',
+      },
+      {
+        Header: 'Monthly P&I',
+        accessor: 'col4',
+      },
+      {
+        Header: 'Mortgage Insurance',
+        accessor: 'col5',
+      },
+      {
+        Header: 'Loan Maximum',
+        accessor: 'col6',
+      },
+      {
+        Header: 'Loan Amount',
+        accessor: 'col7',
+      },
+      {
+        Header: 'Equity',
+        accessor: 'col8',
+      },
+      {
+        Header: '2nd Monthly P&I',
+        accessor: 'col9',
+      },
+      {
+        Header: '2nd Monthly IO',
+        accessor: 'col10',
+      },
+      {
+        Header: '2nd Interest Rate',
+        accessor: 'col11',
+      },
+      {
+        Header: '2nd Loan Amount',
+        accessor: 'col12',
+      },
+    ],
+    [],
+  )
 
   return (
     <div className="flex flex-col gap-2">
@@ -69,6 +190,9 @@ export const LoanInfoCard = ({
         <hr className="my-2 flex w-full border-slate-900" />
       </span>
       <div className="flex flex-col gap-2">
+        <div className="overflow-x-scroll">
+          <DataTable data={tableData} columns={columns} />
+        </div>
         <span className="flex flex-wrap gap-4">
           <span
             className={`${
