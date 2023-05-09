@@ -103,58 +103,20 @@ export const LoanInfoCard = ({
 
   const columns = useMemo(
     () => [
-      {
-        Header: '',
-        accessor: 'radio',
-      },
-      {
-        Header: 'Loan Type',
-        accessor: 'loan_type',
-      },
-      {
-        Header: 'Interest Rate',
-        accessor: 'interest_rate',
-      },
-      {
-        Header: 'Down Payment',
-        accessor: 'down_payment',
-      },
-      {
-        Header: 'Monthly P&I',
-        accessor: 'monthly_pi',
-      },
-      {
-        Header: 'Mortgage Insurance',
-        accessor: 'mortgage_insurance',
-      },
-      {
-        Header: 'Loan Maximum',
-        accessor: 'loan_max',
-      },
-      {
-        Header: 'Loan Amount',
-        accessor: 'loan_amount',
-      },
-      {
-        Header: 'Equity',
-        accessor: 'equity',
-      },
-      {
-        Header: '2nd Monthly P&I',
-        accessor: 'sec_monthly_pi',
-      },
-      {
-        Header: '2nd Monthly IO',
-        accessor: 'sec_monthly_io',
-      },
-      {
-        Header: '2nd Interest Rate',
-        accessor: 'sec_interest_rate',
-      },
-      {
-        Header: '2nd Loan Amount',
-        accessor: 'sec_loan_amount',
-      },
+      { Header: '', accessor: 'radio' },
+      { Header: 'Loan Type', accessor: 'loan_type' },
+      // { Header: '', accessor: 'viable' },
+      { Header: 'Interest Rate', accessor: 'interest_rate' },
+      { Header: 'Down Payment', accessor: 'down_payment' },
+      { Header: 'Monthly PI', accessor: 'monthly_pi' },
+      { Header: 'Mortgage Insurance', accessor: 'mortgage_insurance' },
+      { Header: 'Loan Max', accessor: 'loan_max' },
+      { Header: 'Loan Amount', accessor: 'loan_amount' },
+      { Header: 'Equity', accessor: 'equity' },
+      { Header: 'Secondary Monthly PI', accessor: 'sec_monthly_pi' },
+      { Header: 'Secondary Monthly IO', accessor: 'sec_monthly_io' },
+      { Header: 'Secondary Interest Rate', accessor: 'sec_interest_rate' },
+      { Header: 'Secondary Loan Amount', accessor: 'sec_loan_amount' },
     ],
     [],
   )
@@ -206,7 +168,7 @@ export const LoanInfoCard = ({
             selectedLoan={selectedLoan}
           />
         </div>
-        <span className="flex flex-wrap gap-4">
+        {/* <span className="flex flex-wrap gap-4">
           <span
             className={`${
               optimizedLoans?.conventional.loanViable
@@ -341,7 +303,7 @@ export const LoanInfoCard = ({
             </p>
             <p>Equity: {optimizedLoans?.jumbo?.equityPercentage}%</p>
           </span>
-        </span>
+        </span> */}
       </div>
     </div>
   )

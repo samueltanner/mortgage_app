@@ -148,6 +148,7 @@ const Calculator = ({}) => {
       setListingCounty(propertyData.address.county)
       setListingState(propertyData.address.state)
       setListPrice(propertyData.list_price)
+      setSelectedLoan('conventional')
     }
   }, [propertyData, propertySuccess, propertyLoading])
 

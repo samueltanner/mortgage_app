@@ -1,24 +1,30 @@
-import { useTable, HeaderGroup, Column, Row, Cell } from 'react-table'
+import { useTable, HeaderGroup, Row, Cell } from 'react-table'
 import { useMemo } from 'react'
 import { getLoanString } from '@/lib/helpers'
 interface LoanTableData {
-  radio: string
+  [key: string]: any
+  radio: string | undefined
   loan_type: string
-  viable: boolean
-  interest_rate: number
-  down_payment: number
-  monthly_pi: number
-  mortgage_insurance: number
-  loan_max: number
-  loan_amount: number
-  equity: number
-  sec_monthly_pi: number
-  sec_monthly_io: number
-  sec_interest_rate: number
-  sec_loan_amount: number
+  viable: boolean | undefined
+  interest_rate: string | undefined
+  down_payment: number | undefined
+  monthly_pi: number | undefined
+  mortgage_insurance: number | undefined
+  loan_max: number | undefined
+  loan_amount: number | undefined
+  equity: number | undefined
+  sec_monthly_pi: number | undefined
+  sec_monthly_io: number | undefined
+  sec_interest_rate: number | undefined
+  sec_loan_amount: number | undefined
+}
+
+interface Column<T extends Record<string, unknown>> {
+  Header: string
+  accessor: string
 }
 interface DataTableProps {
-  data: any[]
+  data: LoanTableData[]
   columns: readonly Column<LoanTableData>[]
   selectedLoan: string | null
   setSelectedLoan: (loan: string) => void
@@ -75,15 +81,30 @@ export const DataTable = ({
                 >
                   <>
                     {cellIndex === 0 && (
-                      <input
-                        type="radio"
-                        name="loanGroup"
-                        value={cell.value}
-                        checked={selectedLoan === cell.value}
-                        onClick={() => {
-                          handleSelectLoan(row)
-                        }}
-                      />
+                      <>
+                        <span
+                          className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full border-2 ${
+                            selectedLoan === cell.value
+                              ? 'border-teal-500'
+                              : 'border-slate-900'
+                          } `}
+                        >
+                          {selectedLoan === cell.value && (
+                            <span className="inline-block h-2 w-2 rounded-full bg-teal-500" />
+                          )}
+                        </span>
+
+                        {/* <input
+                          type="radio"
+                          name="loanGroup"
+                          value={cell.value}
+                          checked={selectedLoan === cell.value}
+                          onClick={() => {
+                            handleSelectLoan(row)
+                          }}
+                          className="form-radio h-5 w-5 text-green-500"
+                        /> */}
+                      </>
                     )}
                     {cellIndex === 1 && (
                       <p
