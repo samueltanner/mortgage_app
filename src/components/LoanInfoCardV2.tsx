@@ -34,64 +34,68 @@ export const LoanInfoCard = ({
   const tableData = useMemo(
     () => [
       {
+        radio: 'conventional',
         loan_type: 'conventional',
         viable: optimizedLoans?.conventional?.loanViable,
-        col2: interestRates?.conventional,
-        col3: optimizedLoans?.conventional?.downPayment,
-        col4: optimizedLoans?.conventional?.primaryLoanPI,
-        col5: optimizedLoans?.conventional?.mortgageInsurance,
-        col6: optimizedLoans?.conventional?.loanLimit,
-        col7: optimizedLoans?.conventional?.primaryLoanAmount,
-        col8: optimizedLoans?.conventional?.equityPercentage,
-        col9: optimizedLoans?.conventional?.secondaryLoanPI,
-        col10: optimizedLoans?.conventional?.secondaryLoanIO,
-        col11: 0,
-        col12: optimizedLoans?.conventional?.secondaryLoanAmount,
+        interest_rate: `${interestRates?.conventional}%`,
+        down_payment: optimizedLoans?.conventional?.downPayment,
+        monthly_pi: optimizedLoans?.conventional?.primaryLoanPI,
+        mortgage_insurance: optimizedLoans?.conventional?.mortgageInsurance,
+        loan_max: optimizedLoans?.conventional?.loanLimit,
+        loan_amount: optimizedLoans?.conventional?.primaryLoanAmount,
+        equity: optimizedLoans?.conventional?.equityPercentage,
+        sec_monthly_pi: undefined,
+        sec_monthly_io: undefined,
+        sec_interest_rate: undefined,
+        sec_loan_amount: undefined,
       },
       {
+        radio: 'fha',
         loan_type: 'fha',
         viable: optimizedLoans?.fha?.loanViable,
-        col2: interestRates?.fha,
-        col3: optimizedLoans?.fha?.downPayment,
-        col4: optimizedLoans?.fha?.primaryLoanPI,
-        col5: optimizedLoans?.fha?.mortgageInsurance,
-        col6: optimizedLoans?.fha?.loanLimit,
-        col7: optimizedLoans?.fha?.primaryLoanAmount,
-        col8: optimizedLoans?.fha?.equityPercentage,
-        col9: optimizedLoans?.fha?.secondaryLoanPI,
-        col10: optimizedLoans?.fha?.secondaryLoanIO,
-        col11: 0,
-        col12: optimizedLoans?.fha?.secondaryLoanAmount,
+        interest_rate: `${interestRates?.fha}%`,
+        down_payment: optimizedLoans?.fha?.downPayment,
+        monthly_pi: optimizedLoans?.fha?.primaryLoanPI,
+        mortgage_insurance: optimizedLoans?.fha?.mortgageInsurance,
+        loan_max: optimizedLoans?.fha?.loanLimit,
+        loan_amount: optimizedLoans?.fha?.primaryLoanAmount,
+        equity: optimizedLoans?.fha?.equityPercentage,
+        sec_monthly_pi: undefined,
+        sec_monthly_io: undefined,
+        sec_interest_rate: undefined,
+        sec_loan_amount: undefined,
       },
       {
+        radio: 'jumbo',
         loan_type: 'jumbo',
         viable: optimizedLoans?.jumbo?.loanViable,
-        col2: interestRates?.jumbo,
-        col3: optimizedLoans?.jumbo?.downPayment,
-        col4: optimizedLoans?.jumbo?.primaryLoanPI,
-        col5: optimizedLoans?.jumbo?.mortgageInsurance,
-        col6: optimizedLoans?.jumbo?.loanLimit,
-        col7: optimizedLoans?.jumbo?.primaryLoanAmount,
-        col8: optimizedLoans?.jumbo?.equityPercentage,
-        col9: optimizedLoans?.jumbo?.secondaryLoanPI,
-        col10: optimizedLoans?.jumbo?.secondaryLoanIO,
-        col11: 0,
-        col12: optimizedLoans?.jumbo?.secondaryLoanAmount,
+        interest_rate: `${interestRates?.jumbo}%`,
+        down_payment: optimizedLoans?.jumbo?.downPayment,
+        monthly_pi: optimizedLoans?.jumbo?.primaryLoanPI,
+        mortgage_insurance: optimizedLoans?.jumbo?.mortgageInsurance,
+        loan_max: optimizedLoans?.jumbo?.loanLimit,
+        loan_amount: optimizedLoans?.jumbo?.primaryLoanAmount,
+        equity: optimizedLoans?.jumbo?.equityPercentage,
+        sec_monthly_pi: undefined,
+        sec_monthly_io: undefined,
+        sec_interest_rate: undefined,
+        sec_loan_amount: undefined,
       },
       {
+        radio: 'piggy_back',
         loan_type: 'piggy_back',
         viable: optimizedLoans?.piggy_back?.loanViable,
-        col2: interestRates?.conventional,
-        col3: optimizedLoans?.piggy_back?.downPayment,
-        col4: optimizedLoans?.piggy_back?.primaryLoanPI,
-        col5: optimizedLoans?.piggy_back?.mortgageInsurance,
-        col6: optimizedLoans?.piggy_back?.loanLimit,
-        col7: optimizedLoans?.piggy_back?.primaryLoanAmount,
-        col8: optimizedLoans?.piggy_back?.equityPercentage,
-        col9: optimizedLoans?.piggy_back?.secondaryLoanPI,
-        col10: optimizedLoans?.piggy_back?.secondaryLoanIO,
-        col11: interestRates?.piggy_back,
-        col12: optimizedLoans?.piggy_back?.secondaryLoanAmount,
+        interest_rate: `${interestRates?.conventional}%`,
+        down_payment: optimizedLoans?.piggy_back?.downPayment,
+        monthly_pi: optimizedLoans?.piggy_back?.primaryLoanPI,
+        mortgage_insurance: optimizedLoans?.piggy_back?.mortgageInsurance,
+        loan_max: optimizedLoans?.piggy_back?.loanLimit,
+        loan_amount: optimizedLoans?.piggy_back?.primaryLoanAmount,
+        equity: optimizedLoans?.piggy_back?.equityPercentage,
+        sec_monthly_pi: optimizedLoans?.piggy_back?.secondaryLoanPI,
+        sec_monthly_io: optimizedLoans?.piggy_back?.secondaryLoanIO,
+        sec_interest_rate: interestRates?.piggy_back,
+        sec_loan_amount: optimizedLoans?.piggy_back?.secondaryLoanAmount,
       },
     ],
     [optimizedLoans, interestRates],
@@ -100,52 +104,56 @@ export const LoanInfoCard = ({
   const columns = useMemo(
     () => [
       {
+        Header: '',
+        accessor: 'radio',
+      },
+      {
         Header: 'Loan Type',
         accessor: 'loan_type',
       },
       {
         Header: 'Interest Rate',
-        accessor: 'col2',
+        accessor: 'interest_rate',
       },
       {
         Header: 'Down Payment',
-        accessor: 'col3',
+        accessor: 'down_payment',
       },
       {
         Header: 'Monthly P&I',
-        accessor: 'col4',
+        accessor: 'monthly_pi',
       },
       {
         Header: 'Mortgage Insurance',
-        accessor: 'col5',
+        accessor: 'mortgage_insurance',
       },
       {
         Header: 'Loan Maximum',
-        accessor: 'col6',
+        accessor: 'loan_max',
       },
       {
         Header: 'Loan Amount',
-        accessor: 'col7',
+        accessor: 'loan_amount',
       },
       {
         Header: 'Equity',
-        accessor: 'col8',
+        accessor: 'equity',
       },
       {
         Header: '2nd Monthly P&I',
-        accessor: 'col9',
+        accessor: 'sec_monthly_pi',
       },
       {
         Header: '2nd Monthly IO',
-        accessor: 'col10',
+        accessor: 'sec_monthly_io',
       },
       {
         Header: '2nd Interest Rate',
-        accessor: 'col11',
+        accessor: 'sec_interest_rate',
       },
       {
         Header: '2nd Loan Amount',
-        accessor: 'col12',
+        accessor: 'sec_loan_amount',
       },
     ],
     [],
@@ -191,7 +199,12 @@ export const LoanInfoCard = ({
       </span>
       <div className="flex flex-col gap-2">
         <div className="overflow-x-scroll">
-          <DataTable data={tableData} columns={columns} />
+          <DataTable
+            data={tableData}
+            columns={columns}
+            setSelectedLoan={setSelectedLoan}
+            selectedLoan={selectedLoan}
+          />
         </div>
         <span className="flex flex-wrap gap-4">
           <span
@@ -328,98 +341,8 @@ export const LoanInfoCard = ({
             </p>
             <p>Equity: {optimizedLoans?.jumbo?.equityPercentage}%</p>
           </span>
-
-          {/* <span className="flex w-fit flex-col">
-            <h2 className="font-bold">Jumbo Mortgage</h2>
-            <p>Loan Maximum: ${loanMaximums?.fha_max}</p>
-            <p>Loan Amount: ${optimizedLoans?.fha?.primaryLoanAmount}</p>
-            <p>Down Payment: ${optimizedLoans?.fha?.downPayment}</p>
-            <p>Equity: {optimizedLoans?.fha?.equity}%</p>
-          </span> */}
         </span>
       </div>
     </div>
   )
 }
-
-// {loanSettingsExpanded && (
-//   <div className="flex flex-col gap-2">
-//     <span className="flex flex-col">
-//       <label htmlFor="down-payment">Down Payment</label>
-//       <input
-//         id="down-payment"
-//         type="number"
-//         className="rounded-md border-2 border-slate-900 bg-gray-50 px-2"
-//         ref={downPaymentInputRef}
-//         value={downPayment || ''}
-//         onChange={(e) => {
-//           setDownPayment(Number(e.target.value))
-//         }}
-//       />
-//     </span>
-//     <span className="flex gap-2">
-//       <button
-//         id="fha-checkbox"
-//         onClick={() => {
-//           setFHAEligible(!FHAEligible)
-//         }}
-//       >
-//         <div
-//           className={`relative flex h-6 w-6 flex-none items-center justify-center rounded-md border-2 border-slate-900 bg-gray-50 px-2
-//           ${
-//             FHAEligible
-//               ? 'border-teal-800 bg-teal-400 hover:bg-teal-200 '
-//               : 'border-slate-900 bg-gray-300 hover:bg-gray-400'
-//           } duration-300 ease-in-out`}
-//         >
-//           {FHAEligible && <BiCheck className="absolute h-5 w-5" />}
-//         </div>
-//       </button>
-//       <label htmlFor="fha-checkbox">First-Time Home Buyer</label>
-//     </span>
-//     <span className="flex gap-2">
-//       <button
-//         id="fha-checkbox"
-//         onClick={() => {
-//           setPiggyBackEligible(!piggyBackEligible)
-//         }}
-//       >
-//         <div
-//           className={`relative flex h-6 w-6 flex-none items-center justify-center rounded-md border-2 border-slate-900 bg-gray-50 px-2
-//           ${
-//             piggyBackEligible
-//               ? 'border-teal-800 bg-teal-400 hover:bg-teal-200 '
-//               : 'border-slate-900 bg-gray-300 hover:bg-gray-400'
-//           } duration-300 ease-in-out`}
-//         >
-//           {piggyBackEligible && (
-//             <BiCheck className="absolute h-5 w-5" />
-//           )}
-//         </div>
-//       </button>
-//       <label htmlFor="fha-checkbox">Show Piggy Loan Options</label>
-//     </span>
-//     <span className="flex gap-2">
-//       <button
-//         id="fha-checkbox"
-//         onClick={() => {
-//           setJumboEligible(!jumboEligible)
-//         }}
-//       >
-//         <div
-//           className={`relative flex h-6 w-6 flex-none items-center justify-center rounded-md border-2 border-slate-900 bg-gray-50 px-2
-//           ${
-//             jumboEligible
-//               ? 'border-teal-800 bg-teal-400 hover:bg-teal-200 '
-//               : 'border-slate-900 bg-gray-300 hover:bg-gray-400'
-//           } duration-300 ease-in-out`}
-//         >
-//           {jumboEligible && (
-//             <BiCheck className="absolute h-5 w-5" />
-//           )}
-//         </div>
-//       </button>
-//       <label htmlFor="fha-checkbox">Show Jumbo Loan Options</label>
-//     </span>
-//   </div>
-// )}

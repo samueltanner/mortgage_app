@@ -52,3 +52,10 @@ export const getRecurringPayment = ({
   if (interestOnly) return monthlyInterestRate * loanAmount
   return monthlyPayment
 }
+
+export const getLoanString = (loanType: string) => {
+  if (loanType === 'jumbo') return 'Jumbo'
+  if (loanType === 'piggy_back') return 'Piggy Back'
+  if (loanType === 'fha') return 'FHA'
+  return 'Conventional'
+}
