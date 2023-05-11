@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { propertyTypeName } from '@/lib/data'
 import { parsePrice } from '@/lib/helpers'
+import { off } from 'process'
 
 interface MortgageInfoCardProps {
   propertyData: any
@@ -9,6 +10,7 @@ interface MortgageInfoCardProps {
   listingCounty: string
   propertyType: string
   propertyLoading: boolean
+  offerPrice: number | null
 }
 export const MortgageInfoCard = ({
   propertyData,
@@ -17,6 +19,7 @@ export const MortgageInfoCard = ({
   listingCounty,
   propertyType,
   propertyLoading,
+  offerPrice,
 }: MortgageInfoCardProps) => {
   return (
     <>
@@ -35,6 +38,7 @@ export const MortgageInfoCard = ({
           )}
           <ul>
             {!!listPrice && <li>List Price: ${parsePrice(listPrice)}</li>}
+            {!!offerPrice && <li>Offer Price: ${parsePrice(offerPrice)}</li>}
             {propertyData?.address?.street_address && (
               <li>
                 Address: {propertyData?.address?.street_address}, {listingState}{' '}

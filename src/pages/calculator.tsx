@@ -28,6 +28,7 @@ const Calculator = ({}) => {
   const [listingURL, setListingURL] = useState<string>('')
   const [propertyType, setPropertyType] = useState<string>('')
   const [listPrice, setListPrice] = useState<number>(0)
+  const [offerPrice, setOfferPrice] = useState<number | null>(null)
   const [downPayment, setDownPayment] = useState<number>()
   const [optimizedLoans, setOptimizedLoans] = useState<OptimizedLoans>()
   const [interestRates, setInterestRates] = useState<InterestRates>({
@@ -172,7 +173,7 @@ const Calculator = ({}) => {
     if (!loanLimits || !listPrice || !propertyType) return
 
     const optimizedFHA: OptimizedLoan = getOptimizedLoan({
-      listPrice,
+      listPrice: offerPrice || listPrice,
       customDownPayment: downPayment,
       loanLimits,
       propertyType,
@@ -180,7 +181,7 @@ const Calculator = ({}) => {
       interestRate: interestRates?.fha,
     })
     const optimizedConventional = getOptimizedLoan({
-      listPrice,
+      listPrice: offerPrice || listPrice,
       customDownPayment: downPayment,
       loanLimits,
       propertyType,
@@ -188,7 +189,7 @@ const Calculator = ({}) => {
       interestRate: interestRates?.conventional,
     })
     const optimizedPiggyback = getOptimizedLoan({
-      listPrice,
+      listPrice: offerPrice || listPrice,
       customDownPayment: downPayment,
       loanLimits,
       propertyType,
@@ -197,7 +198,7 @@ const Calculator = ({}) => {
       secondaryInterestRate: interestRates?.piggy_back,
     })
     const optimizedJumbo = getOptimizedLoan({
-      listPrice,
+      listPrice: offerPrice || listPrice,
       customDownPayment: downPayment,
       loanLimits,
       propertyType,
@@ -213,7 +214,7 @@ const Calculator = ({}) => {
     }
 
     setOptimizedLoans(optimizedLoans)
-  }, [loanLimits, downPayment, listPrice, propertyType])
+  }, [loanLimits, downPayment, listPrice, propertyType, offerPrice])
 
   useEffect(() => {
     if (!optimizedLoans) return
@@ -305,6 +306,9 @@ const Calculator = ({}) => {
             selectedLoan={selectedLoan}
             setSelectedLoan={setSelectedLoan}
             downPayment={downPayment}
+            offerPrice={offerPrice}
+            setOfferPrice={setOfferPrice}
+            listPrice={listPrice}
           />
         </CalculatorCard>
 
@@ -350,6 +354,7 @@ const Calculator = ({}) => {
               listingCounty={listingCounty}
               propertyType={propertyType}
               propertyLoading={propertyLoading}
+              offerPrice={offerPrice}
             />
           </CalculatorCard>
         </div>

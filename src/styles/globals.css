@@ -7,3 +7,15 @@
     color-scheme: dark;
   }
 }
+
+/* Remove the number spinners on all inputs with type "number" */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Optional: style the input to make it look more like a text input */
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}

@@ -1,9 +1,10 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { BiCalculator, BiReset, BiSliderAlt } from 'react-icons/bi'
 import { OptimizedLoans, InterestRates } from '@/lib/types'
 import { LoanDataTable } from './DataTable'
 import { parsePrice } from '@/lib/helpers'
 import { parse } from 'path'
+import { DollarPercentSwitcher } from './DollarPercentSwitcher'
 
 interface LoanInfoCardProps {
   optimizedLoans: OptimizedLoans | undefined
@@ -12,6 +13,9 @@ interface LoanInfoCardProps {
   selectedLoan: string | null
   setSelectedLoan: (loan: string | null) => void
   downPayment: number | undefined
+  offerPrice: number | null
+  setOfferPrice: (offerPrice: number | null) => void
+  listPrice: number
 }
 
 export const LoanInfoCard = ({
@@ -21,8 +25,11 @@ export const LoanInfoCard = ({
   selectedLoan,
   setSelectedLoan,
   downPayment,
+  offerPrice,
+  setOfferPrice,
+  listPrice,
 }: LoanInfoCardProps) => {
-  const [tempDownPayment, setTempDownPayment] = useState<number | undefined>()
+  const [inputInDollars, setInputInDollars] = useState<boolean>(true)
 
   const handleCustomDownPayment = (dp: number) => {
     setDownPayment(dp)
@@ -30,7 +37,6 @@ export const LoanInfoCard = ({
 
   const handleResetDownPayment = () => {
     setDownPayment(0)
-    setTempDownPayment(undefined)
   }
 
   const tableData = useMemo(
@@ -135,7 +141,6 @@ export const LoanInfoCard = ({
   const columns = useMemo(
     () => [
       { Header: 'Loan Type', accessor: 'loan_type' },
-      // { Header: '', accessor: 'viable' },
       { Header: 'Interest Rate', accessor: 'interest_rate' },
       { Header: 'Down Payment', accessor: 'down_payment' },
       { Header: 'Monthly PI', accessor: 'monthly_pi' },
@@ -151,10 +156,48 @@ export const LoanInfoCard = ({
     [],
   )
 
+  const getOfferValue = () => {
+    if (inputInDollars) return offerPrice
+    const percent = ((offerPrice || listPrice) / listPrice) * 100
+    return parseFloat(percent.toFixed(2))
+  }
+
+  useEffect(() => {
+    getOfferValue()
+  }, [inputInDollars])
+
   return (
     <div className="flex flex-col gap-2">
       <h1 className="text-xl font-bold">Loan Options</h1>
       <span className="flex flex-nowrap items-end gap-4">
+        <span className="flex h-full max-w-[50%]">
+          <span className="flex-col">
+            <label htmlFor="offer-amount">Offer Amount</label>
+            <input
+              id="offer-amount"
+              type="number"
+              className="rounded-md border-2 border-slate-900 bg-gray-50 px-2"
+              value={getOfferValue() || ''}
+              defaultValue={listPrice}
+              placeholder={`${listPrice}`}
+              onChange={(e) => {
+                const offer = Number(e.target.value) || 0
+                if (inputInDollars) {
+                  setOfferPrice(offer)
+                } else {
+                  setOfferPrice((offer / 100) * listPrice)
+                }
+              }}
+            />
+          </span>
+          <span className="flex h-full items-end">
+            <DollarPercentSwitcher
+              isDollar={inputInDollars}
+              setIsDollar={setInputInDollars}
+            />
+          </span>
+        </span>
+
         <span className="flex w-[40%] flex-col">
           <label htmlFor="down-payment">Down Payment</label>
           <input
@@ -169,14 +212,6 @@ export const LoanInfoCard = ({
             placeholder="Defaults To Minimums"
           />
         </span>
-        {/* <button
-          className="flex h-10 w-10 flex-none items-center justify-center rounded-md border-2 border-teal-400 bg-teal-400 duration-300 ease-in-out hover:bg-teal-200 "
-          onClick={() => {
-            handleCustomDownPayment()
-          }}
-        >
-          <BiCalculator className="h-6 w-6" />
-        </button> */}
         <button
           className="flex h-10 w-10 flex-none items-center justify-center rounded-md border-2 border-teal-400 bg-teal-400 duration-300 ease-in-out hover:bg-teal-200 "
           onClick={() => {

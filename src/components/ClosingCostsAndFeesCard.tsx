@@ -1,3 +1,4 @@
+import { parsePrice } from '@/lib/helpers'
 import { ClosingCosts } from '@/lib/types'
 type ClosingCostsAndFeesProps = {
   closingCosts: ClosingCosts
@@ -76,7 +77,7 @@ export const ClosingCostsAndFeesCard = ({
       </span>
       <hr className="my-4 border-slate-900" />
       <h1 className={` text-md font-bold`}>Cash To Close</h1>
-      <p>${getCashToClose()}</p>
+      <p>${parsePrice(getCashToClose())}</p>
     </div>
   )
 }
