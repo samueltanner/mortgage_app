@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { BiCalculator, BiReset, BiSliderAlt } from 'react-icons/bi'
 import { OptimizedLoans, InterestRates } from '@/lib/types'
 import { DataTable } from './DataTable'
+import { parsePrice } from '@/lib/helpers'
 
 interface LoanInfoCardProps {
   optimizedLoans: OptimizedLoans | undefined
@@ -34,11 +35,13 @@ export const LoanInfoCard = ({
   const tableData = useMemo(
     () => [
       {
-        radio: 'conventional',
         loan_type: 'conventional',
         viable: optimizedLoans?.conventional?.loanViable,
         interest_rate: `${interestRates?.conventional}%`,
-        down_payment: optimizedLoans?.conventional?.downPayment,
+        down_payment: parsePrice(
+          optimizedLoans?.conventional?.downPayment,
+          true,
+        ),
         monthly_pi: optimizedLoans?.conventional?.primaryLoanPI,
         mortgage_insurance: optimizedLoans?.conventional?.mortgageInsurance,
         loan_max: optimizedLoans?.conventional?.loanLimit,
@@ -50,11 +53,10 @@ export const LoanInfoCard = ({
         sec_loan_amount: undefined,
       },
       {
-        radio: 'fha',
         loan_type: 'fha',
         viable: optimizedLoans?.fha?.loanViable,
         interest_rate: `${interestRates?.fha}%`,
-        down_payment: optimizedLoans?.fha?.downPayment,
+        down_payment: parsePrice(optimizedLoans?.fha?.downPayment, true),
         monthly_pi: optimizedLoans?.fha?.primaryLoanPI,
         mortgage_insurance: optimizedLoans?.fha?.mortgageInsurance,
         loan_max: optimizedLoans?.fha?.loanLimit,
@@ -66,11 +68,10 @@ export const LoanInfoCard = ({
         sec_loan_amount: undefined,
       },
       {
-        radio: 'jumbo',
         loan_type: 'jumbo',
         viable: optimizedLoans?.jumbo?.loanViable,
         interest_rate: `${interestRates?.jumbo}%`,
-        down_payment: optimizedLoans?.jumbo?.downPayment,
+        down_payment: parsePrice(optimizedLoans?.jumbo?.downPayment, true),
         monthly_pi: optimizedLoans?.jumbo?.primaryLoanPI,
         mortgage_insurance: optimizedLoans?.jumbo?.mortgageInsurance,
         loan_max: optimizedLoans?.jumbo?.loanLimit,
@@ -82,11 +83,10 @@ export const LoanInfoCard = ({
         sec_loan_amount: undefined,
       },
       {
-        radio: 'piggy_back',
         loan_type: 'piggy_back',
         viable: optimizedLoans?.piggy_back?.loanViable,
         interest_rate: `${interestRates?.conventional}%`,
-        down_payment: optimizedLoans?.piggy_back?.downPayment,
+        down_payment: parsePrice(optimizedLoans?.piggy_back?.downPayment, true),
         monthly_pi: optimizedLoans?.piggy_back?.primaryLoanPI,
         mortgage_insurance: optimizedLoans?.piggy_back?.mortgageInsurance,
         loan_max: optimizedLoans?.piggy_back?.loanLimit,
@@ -103,7 +103,6 @@ export const LoanInfoCard = ({
 
   const columns = useMemo(
     () => [
-      { Header: '', accessor: 'radio' },
       { Header: 'Loan Type', accessor: 'loan_type' },
       // { Header: '', accessor: 'viable' },
       { Header: 'Interest Rate', accessor: 'interest_rate' },

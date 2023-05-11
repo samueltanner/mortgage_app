@@ -1,5 +1,5 @@
 export const parsePrice = (
-  price: number,
+  price: number | undefined,
   symbol: boolean = false,
   cents: boolean = false,
 ) => {
