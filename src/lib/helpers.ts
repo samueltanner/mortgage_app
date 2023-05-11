@@ -87,6 +87,8 @@ export const getCheapestViableLoan = (optimizedLoans: OptimizedLoans) => {
   const viableLoans = options.filter((loanType) => {
     return optimizedLoans[loanType].loanViable
   })
+  if(viableLoans.length === 1) return viableLoans[0]
+  if (viableLoans.length === 0) return null
   const cheapestViableLoan = viableLoans.reduce((acc, loanType) => {
     if (totalMonthlyPayment(optimizedLoans[loanType]) < totalMonthlyPayment(optimizedLoans[acc])) {
       return loanType

@@ -161,7 +161,6 @@ const Calculator = ({}) => {
         numUnits || 'one_unit',
         (propertyData.sqft * 1) / 12,
       )
-      console.log(householdMaintenance, 'sqft', propertyData.sqft)
       newCashflowObj.utilities = utilities
       newCashflowObj.household_maintenance = householdMaintenance
 
@@ -305,6 +304,7 @@ const Calculator = ({}) => {
             interestRates={interestRates}
             selectedLoan={selectedLoan}
             setSelectedLoan={setSelectedLoan}
+            downPayment={downPayment}
           />
         </CalculatorCard>
 
