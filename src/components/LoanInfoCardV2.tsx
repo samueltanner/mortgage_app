@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react'
 import { BiCalculator, BiReset, BiSliderAlt } from 'react-icons/bi'
 import { OptimizedLoans, InterestRates } from '@/lib/types'
-import { DataTable } from './DataTable'
+import { LoanDataTable } from './DataTable'
 import { parsePrice } from '@/lib/helpers'
+import { parse } from 'path'
 
 interface LoanInfoCardProps {
   optimizedLoans: OptimizedLoans | undefined
@@ -37,65 +38,95 @@ export const LoanInfoCard = ({
       {
         loan_type: 'conventional',
         viable: optimizedLoans?.conventional?.loanViable,
-        interest_rate: `${interestRates?.conventional}%`,
+        interest_rate: `${interestRates?.conventional || 0}%`,
         down_payment: parsePrice(
           optimizedLoans?.conventional?.downPayment,
           true,
         ),
-        monthly_pi: optimizedLoans?.conventional?.primaryLoanPI,
-        mortgage_insurance: optimizedLoans?.conventional?.mortgageInsurance,
-        loan_max: optimizedLoans?.conventional?.loanLimit,
-        loan_amount: optimizedLoans?.conventional?.primaryLoanAmount,
-        equity: optimizedLoans?.conventional?.equityPercentage,
-        sec_monthly_pi: undefined,
-        sec_monthly_io: undefined,
-        sec_interest_rate: undefined,
-        sec_loan_amount: undefined,
+        monthly_pi: parsePrice(
+          optimizedLoans?.conventional?.primaryLoanPI,
+          true,
+        ),
+        mortgage_insurance: parsePrice(
+          optimizedLoans?.conventional?.mortgageInsurance,
+          true,
+        ),
+        loan_max: parsePrice(optimizedLoans?.conventional?.loanLimit, true),
+        loan_amount: parsePrice(
+          optimizedLoans?.conventional?.primaryLoanAmount,
+          true,
+        ),
+        equity: `${optimizedLoans?.conventional?.equityPercentage || 0}%`,
+        sec_monthly_pi: '-',
+        sec_monthly_io: '-',
+        sec_interest_rate: '-',
+        sec_loan_amount: '-',
       },
       {
         loan_type: 'fha',
         viable: optimizedLoans?.fha?.loanViable,
-        interest_rate: `${interestRates?.fha}%`,
+        interest_rate: `${interestRates?.fha || 0}%`,
         down_payment: parsePrice(optimizedLoans?.fha?.downPayment, true),
-        monthly_pi: optimizedLoans?.fha?.primaryLoanPI,
-        mortgage_insurance: optimizedLoans?.fha?.mortgageInsurance,
-        loan_max: optimizedLoans?.fha?.loanLimit,
-        loan_amount: optimizedLoans?.fha?.primaryLoanAmount,
-        equity: optimizedLoans?.fha?.equityPercentage,
-        sec_monthly_pi: undefined,
-        sec_monthly_io: undefined,
-        sec_interest_rate: undefined,
-        sec_loan_amount: undefined,
+        monthly_pi: parsePrice(optimizedLoans?.fha?.primaryLoanPI, true),
+        mortgage_insurance: parsePrice(
+          optimizedLoans?.fha?.mortgageInsurance,
+          true,
+        ),
+        loan_max: parsePrice(optimizedLoans?.fha?.loanLimit, true),
+        loan_amount: parsePrice(optimizedLoans?.fha?.primaryLoanAmount, true),
+        equity: `${optimizedLoans?.fha?.equityPercentage || 0}%`,
+        sec_monthly_pi: '-',
+        sec_monthly_io: '-',
+        sec_interest_rate: '-',
+        sec_loan_amount: '-',
       },
       {
         loan_type: 'jumbo',
         viable: optimizedLoans?.jumbo?.loanViable,
-        interest_rate: `${interestRates?.jumbo}%`,
+        interest_rate: `${interestRates?.jumbo || 0}%`,
         down_payment: parsePrice(optimizedLoans?.jumbo?.downPayment, true),
-        monthly_pi: optimizedLoans?.jumbo?.primaryLoanPI,
-        mortgage_insurance: optimizedLoans?.jumbo?.mortgageInsurance,
-        loan_max: optimizedLoans?.jumbo?.loanLimit,
-        loan_amount: optimizedLoans?.jumbo?.primaryLoanAmount,
-        equity: optimizedLoans?.jumbo?.equityPercentage,
-        sec_monthly_pi: undefined,
-        sec_monthly_io: undefined,
-        sec_interest_rate: undefined,
-        sec_loan_amount: undefined,
+        monthly_pi: parsePrice(optimizedLoans?.jumbo?.primaryLoanPI, true),
+        mortgage_insurance: parsePrice(
+          optimizedLoans?.jumbo?.mortgageInsurance,
+          true,
+        ),
+        loan_max: parsePrice(optimizedLoans?.jumbo?.loanLimit, true),
+        loan_amount: parsePrice(optimizedLoans?.jumbo?.primaryLoanAmount, true),
+        equity: `${optimizedLoans?.jumbo?.equityPercentage || 0}%`,
+        sec_monthly_pi: '-',
+        sec_monthly_io: '-',
+        sec_interest_rate: '-',
+        sec_loan_amount: '-',
       },
       {
         loan_type: 'piggy_back',
         viable: optimizedLoans?.piggy_back?.loanViable,
-        interest_rate: `${interestRates?.conventional}%`,
+        interest_rate: `${interestRates?.conventional || 0}%`,
         down_payment: parsePrice(optimizedLoans?.piggy_back?.downPayment, true),
-        monthly_pi: optimizedLoans?.piggy_back?.primaryLoanPI,
-        mortgage_insurance: optimizedLoans?.piggy_back?.mortgageInsurance,
-        loan_max: optimizedLoans?.piggy_back?.loanLimit,
-        loan_amount: optimizedLoans?.piggy_back?.primaryLoanAmount,
-        equity: optimizedLoans?.piggy_back?.equityPercentage,
-        sec_monthly_pi: optimizedLoans?.piggy_back?.secondaryLoanPI,
-        sec_monthly_io: optimizedLoans?.piggy_back?.secondaryLoanIO,
-        sec_interest_rate: interestRates?.piggy_back,
-        sec_loan_amount: optimizedLoans?.piggy_back?.secondaryLoanAmount,
+        monthly_pi: parsePrice(optimizedLoans?.piggy_back?.primaryLoanPI, true),
+        mortgage_insurance: parsePrice(
+          optimizedLoans?.piggy_back?.mortgageInsurance,
+          true,
+        ),
+        loan_max: parsePrice(optimizedLoans?.piggy_back?.loanLimit, true),
+        loan_amount: parsePrice(
+          optimizedLoans?.piggy_back?.primaryLoanAmount,
+          true,
+        ),
+        equity: `${optimizedLoans?.piggy_back?.equityPercentage || 0}%`,
+        sec_monthly_pi: parsePrice(
+          optimizedLoans?.piggy_back?.secondaryLoanPI,
+          true,
+        ),
+        sec_monthly_io: parsePrice(
+          optimizedLoans?.piggy_back?.secondaryLoanIO,
+          true,
+        ),
+        sec_interest_rate: `${interestRates?.piggy_back || 0}%`,
+        sec_loan_amount: parsePrice(
+          optimizedLoans?.piggy_back?.secondaryLoanAmount,
+          true,
+        ),
       },
     ],
     [optimizedLoans, interestRates],
@@ -160,7 +191,7 @@ export const LoanInfoCard = ({
       </span>
       <div className="flex flex-col gap-2">
         <div className="overflow-x-scroll">
-          <DataTable
+          <LoanDataTable
             data={tableData}
             columns={columns}
             setSelectedLoan={setSelectedLoan}

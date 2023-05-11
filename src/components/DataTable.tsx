@@ -7,15 +7,15 @@ interface LoanTableData {
   viable: boolean | undefined
   interest_rate: string | undefined
   down_payment: string | undefined
-  monthly_pi: number | undefined
-  mortgage_insurance: number | undefined
-  loan_max: number | undefined
-  loan_amount: number | undefined
-  equity: number | undefined
-  sec_monthly_pi: number | undefined
-  sec_monthly_io: number | undefined
-  sec_interest_rate: number | undefined
-  sec_loan_amount: number | undefined
+  monthly_pi: string | undefined
+  mortgage_insurance: string | undefined
+  loan_max: string | undefined
+  loan_amount: string | undefined
+  equity: string | undefined
+  sec_monthly_pi: string | undefined
+  sec_monthly_io: string | undefined
+  sec_interest_rate: string | undefined
+  sec_loan_amount: string | undefined
 }
 
 interface Column<T extends Record<string, unknown>> {
@@ -29,7 +29,7 @@ interface DataTableProps {
   setSelectedLoan: (loan: string) => void
 }
 
-export const DataTable = ({
+export const LoanDataTable = ({
   data,
   columns,
   selectedLoan,
@@ -44,7 +44,7 @@ export const DataTable = ({
   }
 
   return (
-    <table {...getTableProps()} className="relative cursor-pointer">
+    <table {...getTableProps()} className="relative cursor-pointer ">
       <thead>
         {headerGroups.map((headerGroup, headerIndex) => (
           <tr {...headerGroup.getHeaderGroupProps()} key={headerIndex}>
@@ -55,9 +55,6 @@ export const DataTable = ({
                 className={`${
                   columnIndex === 0 && 'sticky left-0 bg-gray-200'
                 } px-2 text-left text-sm`}
-                onClick={() => {
-                  console.log(column)
-                }}
               >
                 {column.render('Header')}
               </th>
@@ -69,7 +66,11 @@ export const DataTable = ({
         {rows.map((row, rowIndex) => {
           prepareRow(row)
           return (
-            <tr {...row.getRowProps()} key={rowIndex}>
+            <tr
+              {...row.getRowProps()}
+              key={rowIndex}
+              className="border-t-2 border-slate-500"
+            >
               {row.cells.map((cell, cellIndex) => (
                 <td
                   {...cell.getCellProps()}

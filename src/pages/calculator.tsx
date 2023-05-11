@@ -18,6 +18,7 @@ import { IncomeAndExpensesCard } from '@/components/IncomeAndExpensesCard'
 import { getOptimizedLoan } from '@/lib/optimizeLoanHelper'
 import { useTodaysInterestRates } from '@/lib/useTodaysInterestRates'
 import { ClosingCostsAndFeesCard } from '@/components/ClosingCostsAndFeesCard'
+import { getCheapestViableLoan } from '@/lib/helpers'
 
 const Calculator = ({}) => {
   const [propertyExpanded, setPropertyExpanded] = useState<boolean>(true)
@@ -148,7 +149,6 @@ const Calculator = ({}) => {
       setListingCounty(propertyData.address.county)
       setListingState(propertyData.address.state)
       setListPrice(propertyData.list_price)
-      setSelectedLoan('conventional')
     }
   }, [propertyData, propertySuccess, propertyLoading])
 
@@ -198,6 +198,12 @@ const Calculator = ({}) => {
 
     setOptimizedLoans(optimizedLoans)
   }, [loanLimits, downPayment, listPrice, propertyType])
+
+  useEffect(() => {
+    if (!optimizedLoans) return
+    const cheapestViable = getCheapestViableLoan(optimizedLoans)
+    setSelectedLoan(cheapestViable)
+  }, [optimizedLoans])
 
   const handleUpdateClosingCosts = (updates: Record<string, number>) => {
     const newClosingCostsObj = { ...closingCosts, ...updates }
@@ -321,6 +327,12 @@ const Calculator = ({}) => {
             closingCosts={closingCosts}
             handleUpdateClosingCosts={handleUpdateClosingCosts}
             getCashToClose={getCashToClose}
+            downPayment={
+              (optimizedLoans &&
+                selectedLoan &&
+                optimizedLoans[selectedLoan]?.downPayment) ||
+              0
+            }
           />
         </CalculatorCard>
       </div>

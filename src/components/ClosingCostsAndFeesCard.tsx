@@ -3,11 +3,13 @@ type ClosingCostsAndFeesProps = {
   closingCosts: ClosingCosts
   handleUpdateClosingCosts: (updates: Record<string, number>) => void
   getCashToClose: () => number
+  downPayment: number | undefined
 }
 export const ClosingCostsAndFeesCard = ({
   closingCosts,
   handleUpdateClosingCosts,
   getCashToClose,
+  downPayment,
 }: ClosingCostsAndFeesProps) => {
   return (
     <div>
@@ -60,6 +62,16 @@ export const ClosingCostsAndFeesCard = ({
           onChange={(e) =>
             handleUpdateClosingCosts({ lending_fees: Number(e.target.value) })
           }
+        />
+      </span>
+      <span className="flex flex-col">
+        <label htmlFor="down-payment">Down Payment</label>
+        <input
+          id="down-payment"
+          type="number"
+          disabled
+          className="w-[40%] rounded-md border-2 border-slate-900 bg-gray-50 px-2"
+          value={downPayment || ''}
         />
       </span>
       <hr className="my-4 border-slate-900" />

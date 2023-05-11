@@ -70,21 +70,25 @@ export const IncomeAndExpensesCard = ({
 
   const getAffordabilityRatios = (): {
     [key: string]: number
-    houseCosts: number
+    totalHouseCosts: number
     dti: number
     her: number
     ter: number
     tsr: number
   } => {
-    const houseCosts =
-      monthlyCashflowObj.hoa_fees +
+    const houseDebt =
       monthlyCashflowObj.homeowners_insurance +
       monthlyCashflowObj.principal_and_interest +
       monthlyCashflowObj.property_taxes +
-      monthlyCashflowObj.household_maintenance +
-      monthlyCashflowObj.utilities
+      monthlyCashflowObj.mortgage_insurance +
+      monthlyCashflowObj.hoa_fees
+    const houseNonDebtExpenses =
+      monthlyCashflowObj.utilities + monthlyCashflowObj.household_maintenance
+    const totalHouseCosts =
+      monthlyCashflowObj.hoa_fees + houseNonDebtExpenses + houseDebt
     const monthlyDebt =
-      monthlyCashflowObj.monthly_household_expenses + houseCosts
+      monthlyCashflowObj.monthly_household_expenses + houseDebt
+    const monthlyExpenses = monthlyDebt + totalHouseCosts
     const monthlyIncome =
       monthlyCashflowObj.monthly_household_income +
       monthlyCashflowObj.rental_income
@@ -95,18 +99,18 @@ export const IncomeAndExpensesCard = ({
         : 0
     const housing_expense_ratio =
       isFinite(monthlyIncome) && monthlyIncome > 0
-        ? (houseCosts / monthlyIncome) * 100
+        ? (totalHouseCosts / monthlyIncome) * 100
         : 0
     const twenty_eight_rule =
       isFinite(monthlyIncome) && monthlyIncome > 0
-        ? (houseCosts / monthlyIncome) * 100
+        ? (totalHouseCosts / monthlyIncome) * 100
         : 0
     const thirty_six_rule =
       isFinite(monthlyIncome) && monthlyIncome > 0
-        ? (monthlyDebt / monthlyIncome) * 100
+        ? (monthlyExpenses / monthlyIncome) * 100
         : 0
     return {
-      houseCosts: houseCosts,
+      totalHouseCosts: totalHouseCosts,
       dti: dti,
       her: housing_expense_ratio,
       ter: twenty_eight_rule,
@@ -263,14 +267,14 @@ export const IncomeAndExpensesCard = ({
         <div>
           <span>
             <h1 className="text-md font-bold">Total House-Related Expenses</h1>
-            <p>${getAffordabilityRatios().houseCosts}</p>
+            <p>${getAffordabilityRatios().totalHouseCosts}</p>
           </span>
           {!!monthlyCashflowObj.rental_income && (
             <span>
               <h1 className="text-md font-bold">Net House-Related Cashflow</h1>
               <p>
                 $
-                {getAffordabilityRatios().houseCosts -
+                {getAffordabilityRatios().totalHouseCosts -
                   monthlyCashflowObj.rental_income}
               </p>
             </span>
