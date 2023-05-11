@@ -1,34 +1,70 @@
 import { parsePrice } from '@/lib/helpers'
 import { ClosingCosts } from '@/lib/types'
+import { DollarPercentSwitcher } from './DollarPercentSwitcher'
+import { useState, useEffect } from 'react'
+
 type ClosingCostsAndFeesProps = {
   closingCosts: ClosingCosts
   handleUpdateClosingCosts: (updates: Record<string, number>) => void
   getCashToClose: () => number
   downPayment: number | undefined
+  offerPrice: number
 }
 export const ClosingCostsAndFeesCard = ({
   closingCosts,
   handleUpdateClosingCosts,
   getCashToClose,
   downPayment,
+  offerPrice,
 }: ClosingCostsAndFeesProps) => {
+  const [creditInDollars, setCreditInDollars] = useState<boolean>(true)
+
+  const getCreditValue = () => {
+    const sellersCredit = closingCosts.sellers_credit || 0
+    if (creditInDollars) return Math.floor(closingCosts.sellers_credit)
+    const percent = sellersCredit ? (sellersCredit / offerPrice) * 100 : 0
+    return parseFloat(percent.toFixed(2))
+  }
+
+  useEffect(() => {
+    getCreditValue()
+  }, [creditInDollars])
+
   return (
     <div>
-      <span className="flex flex-col">
-        <label htmlFor="sellers-credit">Seller&apos;s Credit</label>
-        <input
-          id="sellers-credit"
-          type="number"
-          className="w-[40%] rounded-md border-2 border-slate-900 bg-gray-50 px-2"
-          value={closingCosts.sellers_credit || ''}
-          onChange={(e) => {
-            const updates = {
-              sellers_credit: Number(e.target.value),
-            }
-            handleUpdateClosingCosts(updates)
-          }}
-        />
-      </span>
+      <div className="flex">
+        <span>
+          <label htmlFor="sellers-credit">Seller&apos;s Credit</label>
+          <span className="flex w-[40%] gap-2">
+            <input
+              id="sellers-credit"
+              type="number"
+              className="rounded-md border-2 border-slate-900 bg-gray-50 px-2"
+              value={getCreditValue() || ''}
+              onChange={(e) => {
+                const credit = Number(e.target.value) || 0
+                if (creditInDollars) {
+                  const updates = {
+                    sellers_credit: credit,
+                  }
+                  handleUpdateClosingCosts(updates)
+                } else {
+                  const updates = {
+                    sellers_credit: (credit / 100) * offerPrice,
+                  }
+                  handleUpdateClosingCosts(updates)
+                }
+              }}
+            />
+            <span className="flex h-full items-end">
+              <DollarPercentSwitcher
+                isDollar={creditInDollars}
+                setIsDollar={setCreditInDollars}
+              />
+            </span>
+          </span>
+        </span>
+      </div>
       <span className="flex flex-col">
         <label htmlFor="appraisal">Appraisal</label>
         <input

@@ -270,7 +270,7 @@ const Calculator = ({}) => {
   }
 
   return (
-    <div className="grid h-screen w-screen grid-cols-5 gap-8 overflow-y-scroll bg-gray-50 p-6 text-slate-900">
+    <div className="grid h-screen w-screen select-none grid-cols-5 gap-8 overflow-y-scroll bg-gray-50 p-6 text-slate-900">
       <div className="col-span-3 flex w-full flex-col gap-8 pt-2">
         {/* Property Info Card */}
         <CalculatorCard onClick={() => {}}>
@@ -341,6 +341,7 @@ const Calculator = ({}) => {
                 optimizedLoans[selectedLoan]?.downPayment) ||
               0
             }
+            offerPrice={offerPrice || listPrice}
           />
         </CalculatorCard>
       </div>
