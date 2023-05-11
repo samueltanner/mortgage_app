@@ -149,6 +149,9 @@ const Calculator = ({}) => {
       setListingCounty(propertyData.address.county)
       setListingState(propertyData.address.state)
       setListPrice(propertyData.list_price)
+      const newCashflowObj = { ...monthlyCashflowObj }
+      newCashflowObj['rental_income'] = 0
+      setMonthlyCashflowObj(newCashflowObj)
     }
   }, [propertyData, propertySuccess, propertyLoading])
 
@@ -345,6 +348,7 @@ const Calculator = ({}) => {
               listingState={listingState}
               listingCounty={listingCounty}
               propertyType={propertyType}
+              propertyLoading={propertyLoading}
             />
           </CalculatorCard>
         </div>
