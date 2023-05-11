@@ -68,9 +68,6 @@ export const IncomeAndExpensesCard = ({
     setTempCashflowObject(monthlyCashflowObj)
   }, [monthlyCashflowObj])
 
-  console.log('base', monthlyCashflowObj.rental_income)
-  console.log('temp', tempCashflowObject.rental_income)
-
   const getAffordabilityRatios = (): {
     [key: string]: number
     totalHouseCosts: number
@@ -151,14 +148,7 @@ export const IncomeAndExpensesCard = ({
         </span>
 
         <span className="flex flex-col">
-          <label
-            htmlFor="rental-income"
-            onClick={() => {
-              console.log('rental income', monthlyCashflowObj.rental_income)
-            }}
-          >
-            Rental Income
-          </label>
+          <label htmlFor="rental-income">Rental Income</label>
           <input
             id="rental-income"
             type="number"

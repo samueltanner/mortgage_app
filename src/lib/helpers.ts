@@ -1,5 +1,22 @@
 import { OptimizedLoans, OptimizedLoan } from "./types";
 
+export const propertyTypeObj: {
+  [key: string]: number
+  one_unit: number
+  two_unit: number
+  three_unit: number
+  four_unit: number
+} = {
+  one_unit: 1,
+  two_unit: 2,
+  three_unit: 3,
+  four_unit: 4,
+}
+
+export const propertyTypeMultiplier = (propertyType: string, rate:number) => {
+  return Math.floor(propertyTypeObj[propertyType] * rate)
+}
+
 export const parsePrice = (
   price: number | undefined,
   symbol: boolean = false,

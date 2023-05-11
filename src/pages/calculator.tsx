@@ -19,6 +19,7 @@ import { getOptimizedLoan } from '@/lib/optimizeLoanHelper'
 import { useTodaysInterestRates } from '@/lib/useTodaysInterestRates'
 import { ClosingCostsAndFeesCard } from '@/components/ClosingCostsAndFeesCard'
 import { getCheapestViableLoan } from '@/lib/helpers'
+import { propertyTypeMultiplier } from '@/lib/helpers'
 
 const Calculator = ({}) => {
   const [propertyExpanded, setPropertyExpanded] = useState<boolean>(true)
@@ -66,6 +67,7 @@ const Calculator = ({}) => {
     listing_url: listingURL,
     get_loan_limits: true,
   })
+
   const {
     data: counties,
     error: countiesError,
@@ -122,22 +124,22 @@ const Calculator = ({}) => {
 
     if (['single family', 'condo'].includes(classification) || units === 1) {
       setPropertyType('one_unit')
-      return
+      return 'one_unit'
     }
 
     if (['duplex'].includes(classification) || units === 2) {
       setPropertyType('two_unit')
-      return
+      return 'two_unit'
     }
 
     if (['triplex'].includes(classification) || units === 3) {
       setPropertyType('three_unit')
-      return
+      return 'three_unit'
     }
 
     if (['quadruplex', 'fourplex'].includes(classification) || units === 4) {
       setPropertyType('four_unit')
-      return
+      return 'four_unit'
     }
 
     setPropertyType('')
@@ -145,12 +147,24 @@ const Calculator = ({}) => {
 
   useEffect(() => {
     if (propertyData) {
-      getNumberOfUnits()
+      const numUnits = getNumberOfUnits()
       setListingCounty(propertyData.address.county)
       setListingState(propertyData.address.state)
       setListPrice(propertyData.list_price)
-      const newCashflowObj = { ...monthlyCashflowObj }
-      newCashflowObj['rental_income'] = 0
+      const newCashflowObj = {
+        ...monthlyCashflowObj,
+        rental_income: 0,
+        hoa_fees: 0,
+      }
+      const utilities = propertyTypeMultiplier(numUnits || 'one_unit', 400)
+      const householdMaintenance = propertyTypeMultiplier(
+        numUnits || 'one_unit',
+        (propertyData.sqft * 1) / 12,
+      )
+      console.log(householdMaintenance, 'sqft', propertyData.sqft)
+      newCashflowObj.utilities = utilities
+      newCashflowObj.household_maintenance = householdMaintenance
+
       setMonthlyCashflowObj(newCashflowObj)
     }
   }, [propertyData, propertySuccess, propertyLoading])
@@ -214,19 +228,6 @@ const Calculator = ({}) => {
   }
 
   useEffect(() => {
-    const propertyTypeObj: {
-      [key: string]: number
-      one_unit: number
-      two_unit: number
-      three_unit: number
-      four_unit: number
-    } = {
-      one_unit: 1 * 350,
-      two_unit: 2 * 350,
-      three_unit: 3 * 350,
-      four_unit: 4 * 350,
-    }
-
     let updates = {
       sellers_credit: closingCosts.sellers_credit,
       inspection: closingCosts.inspection,
@@ -235,8 +236,8 @@ const Calculator = ({}) => {
     }
 
     if (propertyType) {
-      updates['inspection'] = propertyTypeObj[propertyType]
-      updates['appraisal'] = propertyTypeObj[propertyType]
+      updates['inspection'] = propertyTypeMultiplier(propertyType, 350)
+      updates['appraisal'] = propertyTypeMultiplier(propertyType, 350)
     }
 
     if (optimizedLoans && selectedLoan) {
