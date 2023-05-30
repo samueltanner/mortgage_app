@@ -167,7 +167,7 @@ export const IncomeAndExpensesCard = ({
               value={
                 monthlyCashflowObj?.principal_and_interest ||
                 getPrincipalAndInterest() ||
-                undefined
+                ''
               }
               onChange={(e) =>
                 handleChangeCashflowObj(e, 'principal_and_interest')
@@ -194,10 +194,7 @@ export const IncomeAndExpensesCard = ({
             id="property-taxes"
             type="number"
             className="w-[40%] rounded-md border-2 border-slate-900 bg-gray-50 px-2"
-            value={
-              monthlyCashflowObj.property_taxes || undefined
-              // propertyData?.payment_info?.property_taxes
-            }
+            value={monthlyCashflowObj.property_taxes || ''}
             onChange={(e) => handleChangeCashflowObj(e, 'property_taxes')}
           />
         </span>
@@ -207,11 +204,7 @@ export const IncomeAndExpensesCard = ({
             id="mortgage-insurance"
             type="number"
             className="w-[40%] rounded-md border-2 border-slate-900 bg-gray-50 px-2"
-            value={
-              monthlyCashflowObj.mortgage_insurance ||
-              // getMortgageInsurance() ||
-              undefined
-            }
+            value={monthlyCashflowObj.mortgage_insurance || ''}
             onChange={(e) => handleChangeCashflowObj(e, 'mortgage_insurance')}
           />
         </span>
@@ -223,7 +216,7 @@ export const IncomeAndExpensesCard = ({
             id="homeowners-insurance"
             type="number"
             className="w-[40%] rounded-md border-2 border-slate-900 bg-gray-50 px-2"
-            value={monthlyCashflowObj.homeowners_insurance || undefined}
+            value={monthlyCashflowObj.homeowners_insurance || ''}
             onChange={(e) => handleChangeCashflowObj(e, 'homeowners_insurance')}
           />
         </span>
@@ -233,11 +226,7 @@ export const IncomeAndExpensesCard = ({
             id="hoa-dues"
             type="number"
             className="w-[40%] rounded-md border-2 border-slate-900 bg-gray-50 px-2"
-            value={
-              monthlyCashflowObj.hoa_fees ||
-              // propertyData?.hoa?.payment ||
-              undefined
-            }
+            value={monthlyCashflowObj.hoa_fees || ''}
             onChange={(e) => handleChangeCashflowObj(e, 'hoa_fees')}
           />
         </span>
@@ -247,7 +236,7 @@ export const IncomeAndExpensesCard = ({
             id="utilities"
             type="number"
             className="w-[40%] rounded-md border-2 border-slate-900 bg-gray-50 px-2"
-            value={monthlyCashflowObj.utilities || undefined}
+            value={monthlyCashflowObj.utilities || ''}
             onChange={(e) => handleChangeCashflowObj(e, 'utilities')}
           />
         </span>
@@ -257,7 +246,7 @@ export const IncomeAndExpensesCard = ({
             id="maintenance"
             type="number"
             className="w-[40%] rounded-md border-2 border-slate-900 bg-gray-50 px-2"
-            value={monthlyCashflowObj.household_maintenance || undefined}
+            value={monthlyCashflowObj.household_maintenance || ''}
             onChange={(e) =>
               handleChangeCashflowObj(e, 'household_maintenance')
             }

@@ -51,7 +51,7 @@ export const getOptimizedLoan = ({
   if (!loanLimits || !listPrice || !propertyType || !loanType) return optimizedLoanObject
 
   const loanCategory: 'fha' | 'conventional' = loanType === 'fha' ? 'fha' : 'conventional';
-  const loanLimit = loanLimits[loanCategory][propertyType];
+  const loanLimit = loanLimits.error ? 0 : loanLimits[loanCategory][propertyType];
 
   const getMinimumDownPayment = () => {
     if (loanType === 'piggy_back') return Math.floor(listPrice * minPercentDown.piggy_back)

@@ -178,7 +178,6 @@ export const LoanInfoCard = ({
               type="number"
               className="rounded-md border-2 border-slate-900 bg-gray-50 px-2"
               value={getOfferValue() || ''}
-              defaultValue={listPrice}
               placeholder={`${listPrice}`}
               onChange={(e) => {
                 const offer = Number(e.target.value) || 0
